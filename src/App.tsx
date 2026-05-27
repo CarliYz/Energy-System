@@ -13,6 +13,9 @@ import WorkflowAttribution from './pages/WorkflowAttribution';
 import KnowledgeGraph from './pages/KnowledgeGraph';
 import EventAudit from './pages/EventAudit';
 import ReportGeneration from './pages/ReportGeneration';
+import MinisterDashboard from './pages/MinisterDashboard';
+import SentimentConsole from './pages/SentimentConsole';
+import RegulatoryEffectiveness from './pages/RegulatoryEffectiveness';
 
 export default function App() {
   return (
@@ -20,8 +23,12 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/sensing/national-grid" replace />} />
+            <Route index element={<Navigate to="/minister/dashboard" replace />} />
             
+            <Route path="minister">
+              <Route path="dashboard" element={<MinisterDashboard />} />
+            </Route>
+
             <Route path="sensing">
               <Route path="national-grid" element={<NationalGrid />} />
               <Route path="regional/:regionId" element={<RegionalFacilities />} />
@@ -34,6 +41,13 @@ export default function App() {
               <Route path="timeseries/:anomalyId" element={<PipelineTimeSeries />} />
               <Route path="enterprise" element={<EnterpriseReporting />} />
               <Route path="enterprise/:entId" element={<EnterpriseReporting />} />
+              <Route path="sentiment" element={<SentimentConsole />} />
+              <Route path="sentiment/:topicId" element={<SentimentConsole />} />
+            </Route>
+
+            <Route path="closure">
+              <Route path="effectiveness" element={<RegulatoryEffectiveness />} />
+              <Route path="effectiveness/:entityId" element={<RegulatoryEffectiveness />} />
             </Route>
 
             <Route path="attribution">

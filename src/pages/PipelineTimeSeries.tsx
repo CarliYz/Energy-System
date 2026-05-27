@@ -173,7 +173,7 @@ export default function PipelineTimeSeries() {
             {/* SVG Plot space with 4 defined segments */}
             <div className="grid grid-cols-12 gap-4">
               {/* Playback Controls and metrics left rail */}
-              <div className="col-span-1.5 border-r border-[#E2E7EF] pr-4 flex flex-col justify-between py-2">
+              <div className="col-span-2 border-r border-[#E2E7EF] pr-4 flex flex-col justify-between py-2">
                 <div className="space-y-4">
                   <div className="text-[#6A7686] font-mono text-[9px] uppercase font-black leading-none">{tLabel('Playback Engine', '仿真回播')}</div>
                   <div className="flex flex-col gap-1.5">
@@ -209,7 +209,7 @@ export default function PipelineTimeSeries() {
               </div>
 
               {/* 4 segment canvas vector frame */}
-              <div className="col-span-8 bg-slate-50/50 rounded border border-[#E2E7EF] p-4 relative h-[300px]">
+              <div className="col-span-7 bg-slate-50/50 rounded border border-[#E2E7EF] p-4 relative h-[300px]">
                 
                 {/* Now line marker */}
                 <div className="absolute top-0 bottom-0 w-[1.5px] bg-[#0F1722] left-[78%] z-10 flex flex-col justify-between items-center">
@@ -302,8 +302,8 @@ export default function PipelineTimeSeries() {
                 </div>
               </div>
 
-              {/* SECTION F: vs CLIENT CURRENT COMPARATIVE BOX (Right 2.5 columns) */}
-              <div className="col-span-2.5 bg-[#FAFBFD] border border-[#E2E7EF] rounded p-4 flex flex-col justify-between">
+              {/* SECTION F: vs CLIENT CURRENT COMPARATIVE BOX (Right 3 columns) */}
+              <div className="col-span-3 bg-[#FAFBFD] border border-[#E2E7EF] rounded p-4 flex flex-col justify-between">
                 <div>
                   <h3 className="text-[10px] font-black uppercase text-[#0F1722] tracking-wider border-b border-[#E2E7EF] pb-1.5 mb-2 flex items-center gap-1.5">
                     <Terminal size={12} className="text-[#2D6CDF]" />
@@ -339,9 +339,12 @@ export default function PipelineTimeSeries() {
                 </div>
 
                 <div className="bg-[#0F1722] text-white p-2.5 rounded text-[9.5px] mt-2 leading-snug">
-                  <strong>MODEL ATTRIBUTION:</strong><br />
-                  LLM-TS-Foundation V2.3 weight 0.50.<br />
-                  Backtest score: 91.2% accuracy across 247 registered historical templates.
+                  <strong>{tLabel('MODEL ATTRIBUTION:', '大模型算定归因权重：')}</strong><br />
+                  {tLabel('LLM-TS-Foundation V2.3 weight 0.50.', 'LLM-TS-时序大模型 V2.3 权重：0.50')}<br />
+                  {tLabel(
+                    'Backtest score: 91.2% accuracy across 247 registered historical templates.',
+                    '回测表现：对全疆历史247个高危瞒报偷产自检样本的定性归因精度达 91.2%'
+                  )}
                 </div>
               </div>
             </div>

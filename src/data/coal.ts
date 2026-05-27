@@ -1,8 +1,11 @@
 export const COAL_BASINS = [
-  { id: 'B-EKB', name: 'Ekibastuz Basin', coords: [51.7, 75.3], type: 'Open-cast', reserves: '12.5 Gt', color: '#3A3A3A' },
-  { id: 'B-KAR', name: 'Karaganda Basin', coords: [49.8, 73.1], type: 'Underground', reserves: '9.1 Gt', color: '#3A3A3A' },
-  { id: 'B-MAI', name: 'Maikuben Basin', coords: [51.5, 78.2], type: 'Open-cast', reserves: '3.0 Gt', color: '#5A4A3A' },
-  { id: 'B-TUR', name: 'Turgay Basin', coords: [50.5, 64.0], type: 'Open-cast', reserves: '5.8 Gt', color: '#5A4A3A' },
+  { id: 'B-EKB', name: 'Ekibastuz Basin', coords: [51.7, 75.3], type: 'Open-cast', reserves: '12.5 Gt', color: '#D8454C',
+    isLargest: true,
+    region: 'Pavlodar',
+    note: 'KZ Largest Coal Basin · Future Data Center Cluster' },
+  { id: 'B-KAR', name: 'Karaganda Basin', coords: [49.8, 73.1], type: 'Underground', reserves: '9.1 Gt', color: '#3A3A3A', region: 'Karaganda' },
+  { id: 'B-MAI', name: 'Maikuben Basin', coords: [51.5, 78.2], type: 'Open-cast', reserves: '3.0 Gt', color: '#5A4A3A', region: 'Pavlodar' },
+  { id: 'B-TUR', name: 'Turgay Basin', coords: [50.5, 64.0], type: 'Open-cast', reserves: '5.8 Gt', color: '#5A4A3A', region: 'Kostanay' },
 ];
 
 export const COAL_MINES = [
@@ -13,9 +16,11 @@ export const COAL_MINES = [
 ];
 
 export const MINE_MOUTH_PLANTS = [
-  { id: 'MMP-EKB-1', name: 'Ekibastuz GRES-1', mw: 4000, coords: [51.72, 75.36], isMajor: true },
-  { id: 'MMP-EKB-2', name: 'Ekibastuz GRES-2', mw: 1000, coords: [51.70, 75.30] },
-  { id: 'MMP-AKS-1', name: 'Aksu Power Station', mw: 2100, coords: [52.00, 76.93] },
+  { id: 'MMP-EKB-1', name: 'Ekibastuz GRES-1', mw: 4000, coords: [51.72, 75.36], isMajor: true, fuel: 'Coal',
+    note: 'KZ Largest · Powers Pavlodar Data Center Cluster' },
+  { id: 'MMP-EKB-2', name: 'Ekibastuz GRES-2', mw: 1000, coords: [51.70, 75.30], isMajor: true, fuel: 'Coal' },
+  { id: 'MMP-AKS-1', name: 'Aksu Power Station', mw: 2100, coords: [52.00, 76.93], isMajor: true, fuel: 'Coal',
+    note: 'Pavlodar Region — Critical Grid Node' },
 ];
 
 export const URANIUM_MINES = [

@@ -11,39 +11,47 @@ import {
   ShieldAlert, 
   FileText,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { useLanguage } from './LanguageContext';
 
 const MENU_GROUPS = [
   {
-    title: 'Real-Time Sensing',
+    title: 'Act I · Panoramic Risk Sensing',
+    color: '#2FA862',
     items: [
+      { id: 'minister', label: 'Minister Dashboard', path: '/minister/dashboard', icon: ShieldCheck, count: null },
       { id: 'national', label: 'National Energy Grid', path: '/sensing/national-grid', icon: MapIcon, count: 42 },
       { id: 'regional', label: 'Regional Facilities', path: '/sensing/regional/aktau', icon: Activity, count: 88 },
       { id: 'facility', label: 'Facility Profile', path: '/sensing/facility/default', icon: BarChart3, count: 9 },
     ]
   },
   {
-    title: 'Anomaly Early Warning',
+    title: 'Act II · Pre-emptive Warning',
+    color: '#D8454C',
     items: [
       { id: 'timeseries', label: 'Pipeline Time-Series', path: '/warning/timeseries', icon: AlertTriangle, count: 12 },
       { id: 'enterprise', label: 'Enterprise Reporting', path: '/warning/enterprise', icon: ShieldAlert, count: 4 },
+      { id: 'sentiment', label: 'Sentiment & Opinion', path: '/warning/sentiment', icon: Activity, count: 99 },
     ]
   },
   {
-    title: 'Auto Attribution',
+    title: 'Act III · Closed-Loop Attribution',
+    color: '#2D6CDF',
     items: [
+      { id: 'effectiveness', label: 'Anti-Evasion Enforcement Efficacy', path: '/closure/effectiveness', icon: ShieldAlert, count: 1247 },
       { id: 'workflow', label: 'Workflow Attribution', path: '/attribution/workflow', icon: GitBranch, count: 8 },
-      { id: 'graph', label: 'Knowledge Graph Mining', path: '/attribution/graph', icon: BarChart3, count: 15 },
+      { id: 'graph', label: 'Commercial Graph', path: '/attribution/graph', icon: BarChart3, count: 15 },
     ]
   },
   {
-    title: 'Full-Chain Audit',
+    title: 'Act IV · Audit & Brief',
+    color: '#E89518',
     items: [
       { id: 'audit', label: 'Life-Cycle Audit Trail', path: '/audit/event/CASE-2026-001', icon: FileCheck, count: 42 },
-      { id: 'report', label: 'Report Generation', path: '/audit/report', icon: FileText, count: null },
+      { id: 'report', label: 'Minister Brief', path: '/audit/report', icon: FileText, count: null },
     ]
   }
 ];
@@ -74,9 +82,12 @@ export const LeftMenu = () => {
         {MENU_GROUPS.map((group, idx) => (
           <div key={idx} className="mb-6 last:mb-0">
             {!isCollapsed && (
-              <h3 className="px-2 mb-2 text-[11px] font-semibold uppercase text-text-primary truncate">
-                {t(group.title)}
-              </h3>
+              <div className="flex flex-col mb-2">
+                <div className="h-[4px] w-8 rounded mb-1.5" style={{ backgroundColor: group.color }} />
+                <h3 className="px-2 text-[11px] font-bold uppercase text-text-primary truncate">
+                  {t(group.title)}
+                </h3>
+              </div>
             )}
             {isCollapsed && <div className="h-px bg-border-default mx-2 mb-4" />}
             

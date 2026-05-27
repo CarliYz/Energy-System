@@ -156,24 +156,17 @@ export default function RegionalFacilities() {
       {/* Context Bar */}
       <div className="h-10 bg-white border-b border-border-default flex items-center justify-between px-6 shrink-0 z-20">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/sensing/national-grid')} className="text-text-primary hover:text-text-secondary flex items-center gap-1.5 transition-colors">
-            <ArrowLeft size={16} />
-            <span className="all-caps-label text-[10px] font-bold">
-              {language === 'zh' ? '回主图' : 'Back'}
+          <button onClick={() => navigate('/sensing/national-grid')} className="text-[#6A7686] hover:text-[#0F1722] flex items-center gap-1.5 transition-colors">
+            <ArrowLeft size={14} className="shrink-0" />
+            <span className="text-[11px] font-bold">
+              {language === 'zh' ? '返回国家一张网' : 'Back to National Grid'}
             </span>
           </button>
-          <div className="w-px h-4 bg-border-default" />
-          <div className="flex flex-col">
-            <div className="all-caps-label text-[9px] translate-y-0.5">
-              {language === 'zh' ? '当前视图：属地级设施精细化遥测' : 'Context: Regional Facilities'}
-            </div>
-            <div className="text-[11px] font-bold text-text-primary flex items-center gap-1">
-              AKTAU (43.65°N, 51.16°E)
-              <span className="text-[10px] font-normal text-text-tertiary">
-                {language === 'zh' ? ' › 哈萨克斯坦共和国 › 曼吉斯套省阿克套市' : ' › KZ-AKT › MANGISTAU OBLAST'}
-              </span>
-            </div>
-          </div>
+          <span className="text-border-default text-[12px]">|</span>
+          <span className="text-[#6A7686] text-[11px] font-medium">
+            {language === 'zh' ? '区域:' : 'Region:'} <strong className="text-[#0F1722] font-bold">{language === 'zh' ? '曼吉斯套 · 阿克套' : `Mangystau · ${regionId ? (regionId.charAt(0).toUpperCase() + regionId.slice(1)) : 'Aktau'}`}</strong>
+          </span>
+          <span className="text-[10px] font-mono text-text-tertiary">({regionId ? regionId.toUpperCase() : 'AKTAU'})</span>
         </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -575,9 +568,12 @@ export default function RegionalFacilities() {
                   const getTranslatedAlertTitle = (id: string, original: string) => {
                     if (language !== 'zh') return original;
                     switch (id) {
-                      case 'ALT-AKT-001': return '物联测压异常突发超设计上限';
-                      case 'ALT-AKT-002': return 'SCADA 工业双向联络线交叉校验失效';
-                      case 'ALT-AKT-003': return '里海近海强气旋大风暴潮橙色突发预警';
+                      case 'ANO-2026-0512': return '主增压机组排出侧压力瞬间飙高/发生涌浪异常';
+                      case 'ANO-2026-0498': return '咸水淡化核心净水流量呈现不正常折损性衰退';
+                      case 'ANO-2026-0501': return '乌津二次增压回路气压传感器零点处于长期漂移状态';
+                      case 'ANO-2026-0489': return '乌津贸易交接物理计量网与测采交叉校验发生失配';
+                      case 'ANO-2026-0476': return '扎纳奥津老油藏高阻井群累计采收总量急速超常衰减';
+                      case 'SYS-2026-0044': return '110kV输电变配电副网发生边缘型网络心跳帧丢失';
                       default: return original;
                     }
                   };
@@ -585,9 +581,12 @@ export default function RegionalFacilities() {
                   const getTranslatedAlertDesc = (id: string, original: string) => {
                     if (language !== 'zh') return original;
                     switch (id) {
-                      case 'ALT-AKT-001': return '物联压力硬传感器测得排出压力超量程突破 8.1 兆帕 (MPa)，超出设计名义最大耐受标准，触发机械自保护泄压风险。';
-                      case 'ALT-AKT-002': return '主用与物理备用传感器在 L-AKT-18 架空输电线处同步跳速，两侧交叉测试采集极度失衡（偏差 2.4%）。';
-                      case 'ALT-AKT-003': return '高强温带气旋大风暴潮正在快速掠过海岸线，局地平均风力已超 11 级，可能引发高电压闪闪、断流与接地污闪。';
+                      case 'ANO-2026-0512': return '排出侧气压在72小时内超出正常工况基准 +38%。该波形与2025年历史违规超产案库中的 ANO-2025-0317 判定特征一致性达 87.2%，且2号离心机轴承异常摆震。';
+                      case 'ANO-2026-0498': return '24小时内核心净水外输流量累计衰退达 -8%。预计滤膜产生严重钙化，已启用补水泵进行声纳高频遥测二级交叉比对校验。';
+                      case 'ANO-2026-0501': return '物理气压检测偏离达 2-sigma 统计学置信上限，该异常可能会沿输气干线向阿克套 GCS-001 主增压站顺流传导。';
+                      case 'ANO-2026-0489': return '关口贸易表交割口径与 SCADA 实物量消偏重算值偏差达 +6.2%，表明测点传感器存在人工作虚调校或有账外销售隐患。';
+                      case 'ANO-2026-0476': return '过去7天累积采出折合标立暴跌 -12%，显著超过油藏自然衰退边界。疑似抽油机井下阻尼柱塞卡死或局部管阀渗漏。';
+                      case 'SYS-2026-0044': return '自当前周期 09:18 时分起，微机总线通信闪断中断，未见后续遥测心跳帧。建议外勤紧急派单开展实物断线排查。';
                       default: return original;
                     }
                   };
@@ -685,8 +684,12 @@ export default function RegionalFacilities() {
                     <div className="w-12 h-12 bg-white/10 border border-white/20 flex items-center justify-center font-bold text-[18px]">WCE</div>
                     <StatusChip status="ACTIVE" />
                  </div>
-                 <div className="text-[16px] font-bold mb-1 leading-tight">{AKTAU_ENTERPRISE.name_en}</div>
-                 <div className="text-[11px] opacity-60 mb-4">{AKTAU_ENTERPRISE.name_ru}</div>
+                 <div className="text-[16px] font-bold mb-1 leading-tight">
+                   {language === 'zh' ? '西里海能源合资有限责任公司' : AKTAU_ENTERPRISE.name_en}
+                 </div>
+                 <div className="text-[11px] opacity-60 mb-4">
+                   {language === 'zh' ? '俄文名称: ТОО Западно-Каспийская Энергия' : AKTAU_ENTERPRISE.name_ru}
+                 </div>
                  <div className="grid grid-cols-2 gap-4">
                    <div>
                       <div className="text-[9px] opacity-50 uppercase tracking-widest">
@@ -709,8 +712,8 @@ export default function RegionalFacilities() {
                 {language === 'zh' ? '企业治理与内部审计' : 'Governance & Risk'}
               </SectionTitle>
               <div className="space-y-1">
-                 <SummaryRow label={language === 'zh' ? "企业法定合规代表人" : "Legal Representative"} value={AKTAU_ENTERPRISE.legal_rep_name} />
-                 <SummaryRow label={language === 'zh' ? "法人注册登记地址" : "Head Office"} value={AKTAU_ENTERPRISE.head_office} />
+                 <SummaryRow label={language === 'zh' ? "企业法定合规代表人" : "Legal Representative"} value={language === 'zh' ? 'A. K. 别克图罗夫' : AKTAU_ENTERPRISE.legal_rep_name} />
+                 <SummaryRow label={language === 'zh' ? "法人注册登记地址" : "Head Office"} value={language === 'zh' ? '哈萨克斯坦曼吉斯套省阿克套市' : AKTAU_ENTERPRISE.head_office} />
                  <SummaryRow label={language === 'zh' ? "在册技术职员工数" : "Employee Count"} value={AKTAU_ENTERPRISE.employees.toString()} />
                  <SummaryRow label={language === 'zh' ? "本季综合能耗指标" : "Current Load"} value="74%" color="text-status-warning" />
               </div>

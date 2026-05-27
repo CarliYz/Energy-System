@@ -1097,7 +1097,7 @@ export default function EquipmentProfile() {
                     {/* Image Area */}
                     <div className="h-[180px] bg-[#11141B] rounded-[6px] border border-white/5 relative flex items-center justify-center p-3 overflow-hidden">
                       <img 
-                        src={selectedAsset.thumbnailUrl} 
+                        src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} Active Real View`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)] transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -1118,7 +1118,7 @@ export default function EquipmentProfile() {
                           className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center cursor-zoom-out p-12"
                         >
                           <img 
-                            src={selectedAsset.thumbnailUrl} 
+                            src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                             alt={`${selectedAsset.name} Full View`} 
                             className="max-h-full max-w-full object-contain"
                             referrerPolicy="no-referrer"
@@ -1145,7 +1145,7 @@ export default function EquipmentProfile() {
                     {/* Schematic Image with interactive hotspots */}
                     <div className="h-[210px] bg-[#EEF2F8] rounded-[6px] border border-[#E2E7EF] relative flex items-center justify-center overflow-hidden p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                       <img 
-                        src={selectedAsset.thumbnailUrl} 
+                        src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} SCADA Diagram`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)] pointer-events-none select-none"
                         referrerPolicy="no-referrer"
@@ -1310,7 +1310,7 @@ export default function EquipmentProfile() {
                 {/* Show cutaway or profile image with the selected hotspot active */}
                 <div className="flex-1 bg-[#EEF2F8]/70 rounded-[8px] border border-[#E2E7EF] relative flex items-center justify-center p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1.4px, transparent 1.4px)', backgroundSize: '12px 12px' }}>
                   <img 
-                    src={selectedAsset.thumbnailUrl} 
+                    src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                     alt="SCADA context diagram" 
                     className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] opacity-40 select-none pointer-events-none"
                     referrerPolicy="no-referrer"

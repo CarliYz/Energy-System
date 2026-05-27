@@ -156,6 +156,19 @@ const ProcessCard = ({ node, onClick, isSelected, language }: { node: any; onCli
       )}
       style={{ backgroundColor: status.fill }}
     >
+      {node.id === 'N-S6-L3-01' && (
+        <div className="absolute -top-14 -left-3 w-[150px] bg-[#D8454C] text-white text-[7.5px] p-1.5 rounded shadow-xl z-50 leading-normal border border-white/20 select-none animate-bounce">
+          <div className="font-bold flex items-center gap-1 text-[8px]">
+            <span className="text-[#E89518]">⚡</span>
+            {language === 'zh' ? 'AI 审查倒流建议' : 'AI BOTTLENECK OVERLAY'}
+          </div>
+          <p className="opacity-95 mt-0.5 text-[7px] leading-tight font-black">
+            {language === 'zh'
+              ? '【常态泄漏拟合度<13%】高置信判定属瞒产超产违规！AI 算法强制拦截并倒退建议至【重报整改】状态。'
+              : 'Leak fit <13%. High-confidence overproduction. Recommended return-flow to Rectification Stage.'}
+          </p>
+        </div>
+      )}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1">
            <div className={cn("w-1.5 h-1.5 rounded-full", node.status === 'CRITICAL' && "agent-dot-pulse")} style={{ backgroundColor: status.border }} />
@@ -373,7 +386,7 @@ export default function EventAudit() {
 
       {/* Case Clock Stats Strip */}
       <div className="h-[88px] bg-white border-b border-[#D8DEE8] flex items-center px-8 shrink-0 relative overflow-hidden z-40">
-         <div className="grid grid-cols-6 gap-12 w-full max-w-7xl">
+         <div className="grid grid-cols-8 gap-6 w-full max-w-7xl items-center">
             <div className="flex flex-col">
                <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-widest mb-1">{language === 'zh' ? '总审理进度' : 'Case Progress'}</span>
                <span className="text-[22px] font-bold leading-none text-bg-dark">{DATA.kpis.overall_progress_percent}%</span>
@@ -397,6 +410,16 @@ export default function EventAudit() {
             <div className="flex flex-col">
                <span className="text-[9px] font-bold text-text-tertiary uppercase tracking-widest mb-1">{language === 'zh' ? '流程倒退流转数' : 'Returns'}</span>
                <span className="text-[22px] font-bold leading-none text-status-critical font-mono">{DATA.kpis.return_edges}</span>
+            </div>
+            <div className="flex flex-col col-span-2 pl-4 border-l border-slate-200 justify-center">
+               <div className="flex justify-between items-center mb-1">
+                 <span className="text-[9px] font-bold text-[#D8454C] uppercase tracking-widest">{language === 'zh' ? '前置干预 SLA 倒计时' : 'PREVENTIVE SLA WINDOW'}</span>
+                 <span className="text-[12px] font-mono font-black text-[#D8454C]">36h Remaining</span>
+               </div>
+               <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                 <div className="h-full bg-gradient-to-r from-[#D8454C] to-[#E89518]" style={{ width: '50%' }}></div>
+               </div>
+               <span className="text-[8.5px] text-[#6A7686] mt-1 font-mono uppercase">Lanes: 18h elapsed · 18h until breach</span>
             </div>
          </div>
          <div className="absolute top-0 right-0 h-full flex items-center opacity-5 select-none pointer-events-none pr-10">

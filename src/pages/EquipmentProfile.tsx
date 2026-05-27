@@ -78,7 +78,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'GE Oil & Gas (Baker Hughes)',
     vendor_zh: '通用电气油气板块（贝克休斯）',
     model: 'ICL-2BCL608/A',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/hGgQJiTV'
+    thumbnailUrl: '/assets/scada/eq01_ge_icl_compressor.png'
   },
   {
     code: 'EQ-02',
@@ -95,7 +95,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Siemens Energy',
     vendor_zh: '西门子能源系统部',
     model: 'GEAFOL 25MVA / 110-6.6kV',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/ceYvC12A'
+    thumbnailUrl: '/assets/scada/eq02_substation_transformer.png'
   },
   {
     code: 'EQ-03',
@@ -112,7 +112,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'ABB',
     vendor_zh: '阿西亚·布朗·勃法里股份公司',
     model: 'ACS6080 / 18MW',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/45wyacdC'
+    thumbnailUrl: '/assets/scada/eq03_vfd_drive.png'
   },
   {
     code: 'EQ-04',
@@ -129,7 +129,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Cameron (Schlumberger)',
     vendor_zh: '卡麦龙重工（斯伦贝谢）',
     model: 'LOS-450',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/OOIQlf2q'
+    thumbnailUrl: '/assets/scada/eq04_lube_oil_system.png'
   },
   {
     code: 'EQ-05',
@@ -146,7 +146,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'SPX Cooling',
     vendor_zh: '斯必克闭式物理冷却技术事业部',
     model: 'MARLEY-FX-6',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/UjiEN12q'
+    thumbnailUrl: '/assets/scada/eq05_water_cooler.png'
   },
   {
     code: 'EQ-06',
@@ -163,7 +163,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Alfa Laval',
     vendor_zh: '阿法拉伐精密板式换热工程',
     model: 'ACE-180',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/eB7uAfbk'
+    thumbnailUrl: '/assets/scada/eq06_oil_cooler.png'
   },
   {
     code: 'EQ-07',
@@ -180,7 +180,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Vallourec',
     vendor_zh: '法国瓦卢瑞克重壁无缝特种钢轨',
     model: 'API-5L X65 / DN500',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/m6yNA3qk'
+    thumbnailUrl: '/assets/scada/eq07_connecting_piping.png'
   },
   {
     code: 'EQ-08',
@@ -197,7 +197,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Emerson',
     vendor_zh: '艾默生自动化系统工程部',
     model: 'DeltaV SX',
-    thumbnailUrl: 'https://www.genspark.ai/api/files/s/b6dgqhKK'
+    thumbnailUrl: '/assets/scada/eq08_control_panel.png'
   }
 ];
 
@@ -907,7 +907,7 @@ export default function EquipmentProfile() {
                   
                   {/* Web Image Container */}
                   <img 
-                    src="https://www.genspark.ai/api/files/s/7vvRVc67" 
+                    src="/assets/scada/station_overview_isometric.png" 
                     alt="Caspian Energy Compressor Station Layout" 
                     className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
                     referrerPolicy="no-referrer"
@@ -1097,7 +1097,7 @@ export default function EquipmentProfile() {
                     {/* Image Area */}
                     <div className="h-[180px] bg-[#11141B] rounded-[6px] border border-white/5 relative flex items-center justify-center p-3 overflow-hidden">
                       <img 
-                        src={selectedAssetCode === 'EQ-01' ? 'https://www.genspark.ai/api/files/s/VWqACyNz' : selectedAsset.thumbnailUrl} 
+                        src={selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} Active Real View`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)] transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -1118,7 +1118,7 @@ export default function EquipmentProfile() {
                           className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center cursor-zoom-out p-12"
                         >
                           <img 
-                            src={selectedAssetCode === 'EQ-01' ? 'https://www.genspark.ai/api/files/s/VWqACyNz' : selectedAsset.thumbnailUrl} 
+                            src={selectedAsset.thumbnailUrl} 
                             alt={`${selectedAsset.name} Full View`} 
                             className="max-h-full max-w-full object-contain"
                             referrerPolicy="no-referrer"
@@ -1145,7 +1145,7 @@ export default function EquipmentProfile() {
                     {/* Schematic Image with interactive hotspots */}
                     <div className="h-[210px] bg-[#EEF2F8] rounded-[6px] border border-[#E2E7EF] relative flex items-center justify-center overflow-hidden p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                       <img 
-                        src={selectedAssetCode === 'EQ-01' ? 'https://www.genspark.ai/api/files/s/CrNbCFYY' : selectedAsset.thumbnailUrl} 
+                        src={selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} SCADA Diagram`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)] pointer-events-none select-none"
                         referrerPolicy="no-referrer"
@@ -1310,7 +1310,7 @@ export default function EquipmentProfile() {
                 {/* Show cutaway or profile image with the selected hotspot active */}
                 <div className="flex-1 bg-[#EEF2F8]/70 rounded-[8px] border border-[#E2E7EF] relative flex items-center justify-center p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1.4px, transparent 1.4px)', backgroundSize: '12px 12px' }}>
                   <img 
-                    src={selectedAssetCode === 'EQ-01' ? 'https://www.genspark.ai/api/files/s/CrNbCFYY' : selectedAsset.thumbnailUrl} 
+                    src={selectedAsset.thumbnailUrl} 
                     alt="SCADA context diagram" 
                     className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] opacity-40 select-none pointer-events-none"
                     referrerPolicy="no-referrer"

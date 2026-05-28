@@ -16,6 +16,8 @@ import {
   COMMERCIAL_DB, searchEnterprises, findEnterpriseById,
   type CommercialRecord
 } from '../data/commercial/enterprise_db';
+import { EnterpriseDetailDrawer } from '../components/EnterpriseDetailDrawer';
+import { enterpriseKB } from '../data/commercial/enterprise_kb';
 
 export default function WorkflowAttribution() {
   const { language } = useLanguage();
@@ -26,7 +28,7 @@ export default function WorkflowAttribution() {
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
   // Commercial KB drawer + Enterprise Search
-  const [drawerEnt, setDrawerEnt] = useState<CommercialRecord | null>(null);
+  const [drawerEntId, setDrawerEntId] = useState<string | null>(null);
   const [searchQ, setSearchQ] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
 
@@ -49,8 +51,7 @@ export default function WorkflowAttribution() {
   };
 
   const openDrawerFor = (entId: string) => {
-    const ent = findEnterpriseById(entId);
-    if (ent) setDrawerEnt(ent);
+    setDrawerEntId(entId);
   };
 
   // ============================================================================
@@ -295,7 +296,7 @@ export default function WorkflowAttribution() {
               </div>
               {searchResults.map(r => (
                 <div key={r.id}
-                  onMouseDown={() => { setDrawerEnt(r); setShowSuggest(false); setSearchQ(''); }}
+                  onMouseDown={() => { setDrawerEntId(r.id); setShowSuggest(false); setSearchQ(''); }}
                   className="px-3 py-2 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 flex items-center justify-between gap-3 transition-colors">
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-[#0F1722] truncate">{language === 'zh' ? r.legal_name_zh : r.legal_name_en}</div>
@@ -1315,7 +1316,10 @@ export default function WorkflowAttribution() {
       </div>
 
       {/* ===== COMMERCIAL KB DRAWER ===== */}
-      {drawerEnt && <CommercialDrawer ent={drawerEnt} onClose={() => setDrawerEnt(null)} tLabel={tLabel} language={language} />}
+      <EnterpriseDetailDrawer
+        enterprise={drawerEntId ? enterpriseKB.find(e => e.id === drawerEntId) ?? null : null}
+        onClose={() => setDrawerEntId(null)}
+      />
     </div>
   );
 }

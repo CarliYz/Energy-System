@@ -67,8 +67,12 @@ const createIcon = (status: string, nodeType: string) => {
   });
 };
 
-export default function RegionalFacilities() {
-  const { regionId } = useParams();
+type RegionalFacilitiesViewProps = {
+  regionId: string;
+  showContextBar?: boolean;
+};
+
+export const RegionalFacilitiesView: React.FC<RegionalFacilitiesViewProps> = ({ regionId, showContextBar = false }) => {
   const navigate = useNavigate();
   const { language, t, objT } = useLanguage();
 
@@ -175,32 +179,34 @@ export default function RegionalFacilities() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-bg-page font-sans">
       {/* Context Bar */}
-      <div className="h-10 bg-white border-b border-border-default flex items-center justify-between px-6 shrink-0 z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/sensing/national-grid')} className="text-[#6A7686] hover:text-[#0F1722] flex items-center gap-1.5 transition-colors">
-            <ArrowLeft size={14} className="shrink-0" />
-            <span className="text-[11px] font-bold">
-              {language === 'zh' ? '返回国家一张网' : 'Back to National Grid'}
+      {showContextBar && (
+        <div className="h-10 bg-white border-b border-border-default flex items-center justify-between px-6 shrink-0 z-20">
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/sensing/national-grid')} className="text-[#6A7686] hover:text-[#0F1722] flex items-center gap-1.5 transition-colors">
+              <ArrowLeft size={14} className="shrink-0" />
+              <span className="text-[11px] font-bold">
+                {language === 'zh' ? '返回国家一张网' : 'Back to National Grid'}
+              </span>
+            </button>
+            <span className="text-border-default text-[12px]">|</span>
+            <span className="text-[#6A7686] text-[11px] font-medium">
+              {language === 'zh' ? '区域:' : 'Region:'} <strong className="text-[#0F1722] font-bold">{language === 'zh' ? '曼吉斯套 · 阿克套' : `Mangystau · ${regionId ? (regionId.charAt(0).toUpperCase() + regionId.slice(1)) : 'Aktau'}`}</strong>
             </span>
-          </button>
-          <span className="text-border-default text-[12px]">|</span>
-          <span className="text-[#6A7686] text-[11px] font-medium">
-            {language === 'zh' ? '区域:' : 'Region:'} <strong className="text-[#0F1722] font-bold">{language === 'zh' ? '曼吉斯套 · 阿克套' : `Mangystau · ${regionId ? (regionId.charAt(0).toUpperCase() + regionId.slice(1)) : 'Aktau'}`}</strong>
-          </span>
-          <span className="text-[10px] font-mono text-text-tertiary">({regionId ? regionId.toUpperCase() : 'AKTAU'})</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse" />
-            <span className="text-[10px] font-mono text-text-secondary uppercase">
-              {language === 'zh' ? '高频遥测物联信护流持续接通中' : 'Live Stream Connected'}
-            </span>
+            <span className="text-[10px] font-mono text-text-tertiary">({regionId ? regionId.toUpperCase() : 'AKTAU'})</span>
           </div>
-          <div className="text-[10px] tabular-nums text-text-tertiary font-mono">
-             {language === 'zh' ? '上个周期同步：2026-05-28 14:32:18' : 'LAST SYNC: 2026-05-28 14:32:18'}
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse" />
+              <span className="text-[10px] font-mono text-text-secondary uppercase">
+                {language === 'zh' ? '高频遥测物联信护流持续接通中' : 'Live Stream Connected'}
+              </span>
+            </div>
+            <div className="text-[10px] tabular-nums text-text-tertiary font-mono">
+               {language === 'zh' ? '上个周期同步：2026-05-28 14:32:18' : 'LAST SYNC: 2026-05-28 14:32:18'}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Tab Switcher */}
       <div className="h-10 border-b border-border-default bg-white flex shrink-0 z-10">
@@ -930,6 +936,25 @@ export default function RegionalFacilities() {
            </div>
         </div>
       </RightDrawer>
+    </div>
+  );
+};
+
+export default function RegionalFacilities() {
+  const { regionId } = useParams<{ regionId: string }>();
+  return (
+    <div className="h-full flex flex-col">
+      <header className="border-b border-border-default bg-white px-6 py-4 flex items-center justify-between shrink-0">
+        <div>
+          <h1 className="text-[20px] font-bold leading-tight">
+            {regionId === 'aktau' ? '阿克套' : regionId} · 区域基础设施监控
+          </h1>
+          <p className="text-[11px] text-text-secondary mt-1">Regional Facility Monitor · 区域物理自检</p>
+        </div>
+      </header>
+      <main className="flex-1 overflow-hidden flex flex-col">
+        <RegionalFacilitiesView regionId={regionId ?? 'aktau'} showContextBar={true} />
+      </main>
     </div>
   );
 }

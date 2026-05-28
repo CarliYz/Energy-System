@@ -6,6 +6,8 @@ import {
   Clock, ShieldAlert, FileText, Ban
 } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
+import { EnterpriseDetailDrawer } from '../components/EnterpriseDetailDrawer';
+import { enterpriseKB } from '../data/commercial/enterprise_kb';
 
 const ENTERPRISES = [
   { rank: 1, name: 'Western Caspian Energy LLC', id: 'ENT-KZ-AKT-0091', composite: 48, status: 'RED',
@@ -56,6 +58,7 @@ export default function RegulatoryEffectiveness() {
   const navigate = useNavigate();
 
   const [selectedEntId, setSelectedEntId] = useState<string>('ENT-KZ-AKT-0091');
+  const [drawerEntId, setDrawerEntId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeStageFilter, setActiveStageFilter] = useState<number | null>(null);
 
@@ -228,7 +231,10 @@ export default function RegulatoryEffectiveness() {
                     return (
                       <tr 
                         key={ent.id}
-                        onClick={() => setSelectedEntId(ent.id)}
+                        onClick={() => {
+                          setSelectedEntId(ent.id);
+                          setDrawerEntId(ent.id);
+                        }}
                         className={`border-b border-slate-100 h-14 hover:bg-[#FAFBFD] cursor-pointer transition-all uppercase text-[11.5px] ${
                           isSelected ? 'bg-[#2D6CDF]/5' : ''
                         }`}
@@ -458,6 +464,10 @@ export default function RegulatoryEffectiveness() {
 
       </div>
 
+      <EnterpriseDetailDrawer
+        enterprise={drawerEntId ? enterpriseKB.find(e => e.id === drawerEntId) ?? null : null}
+        onClose={() => setDrawerEntId(null)}
+      />
     </div>
   );
 }

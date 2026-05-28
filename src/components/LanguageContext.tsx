@@ -20,6 +20,8 @@ const DICTIONARY: Record<string, string> = {
   'Workflow Attribution': '多智能体联合判归',
   'Commercial Graph': '商业穿透与利益图谱',
   'Life-Cycle Audit Trail': '全生命全周期流程审计',
+  'Compliance Audit Workflow': '合规审查流程审计',
+  'Project Lifecycle Audit': '项目全周期流程审计',
   'Minister Brief': '公文及报告生成',
   'Facility Anomaly Analysis': '关键设施异常分析',
   'Consumption Structure': '能源消费结构穿透视图',

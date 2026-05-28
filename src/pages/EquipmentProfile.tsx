@@ -78,7 +78,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'GE Oil & Gas (Baker Hughes)',
     vendor_zh: '通用电气油气板块（贝克休斯）',
     model: 'ICL-2BCL608/A',
-    thumbnailUrl: '/assets/scada/eq01_ge_icl_compressor.png'
+    thumbnailUrl: '/assets/scada/eq01_ge_icl_compressor.jpg'
   },
   {
     code: 'EQ-02',
@@ -95,7 +95,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Siemens Energy',
     vendor_zh: '西门子能源系统部',
     model: 'GEAFOL 25MVA / 110-6.6kV',
-    thumbnailUrl: '/assets/scada/eq02_substation_transformer.png'
+    thumbnailUrl: '/assets/scada/eq02_substation_transformer.jpg'
   },
   {
     code: 'EQ-03',
@@ -112,7 +112,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'ABB',
     vendor_zh: '阿西亚·布朗·勃法里股份公司',
     model: 'ACS6080 / 18MW',
-    thumbnailUrl: '/assets/scada/eq03_vfd_drive.png'
+    thumbnailUrl: '/assets/scada/eq03_vfd_drive.jpg'
   },
   {
     code: 'EQ-04',
@@ -129,7 +129,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Cameron (Schlumberger)',
     vendor_zh: '卡麦龙重工（斯伦贝谢）',
     model: 'LOS-450',
-    thumbnailUrl: '/assets/scada/eq04_lube_oil_system.png'
+    thumbnailUrl: '/assets/scada/eq04_lube_oil_system.jpg'
   },
   {
     code: 'EQ-05',
@@ -146,7 +146,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'SPX Cooling',
     vendor_zh: '斯必克闭式物理冷却技术事业部',
     model: 'MARLEY-FX-6',
-    thumbnailUrl: '/assets/scada/eq05_water_cooler.png'
+    thumbnailUrl: '/assets/scada/eq05_water_cooler.jpg'
   },
   {
     code: 'EQ-06',
@@ -163,7 +163,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Alfa Laval',
     vendor_zh: '阿法拉伐精密板式换热工程',
     model: 'ACE-180',
-    thumbnailUrl: '/assets/scada/eq06_oil_cooler.png'
+    thumbnailUrl: '/assets/scada/eq06_oil_cooler.jpg'
   },
   {
     code: 'EQ-07',
@@ -180,7 +180,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Vallourec',
     vendor_zh: '法国瓦卢瑞克重壁无缝特种钢轨',
     model: 'API-5L X65 / DN500',
-    thumbnailUrl: '/assets/scada/eq07_connecting_piping.png'
+    thumbnailUrl: '/assets/scada/eq07_connecting_piping.jpg'
   },
   {
     code: 'EQ-08',
@@ -197,7 +197,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Emerson',
     vendor_zh: '艾默生自动化系统工程部',
     model: 'DeltaV SX',
-    thumbnailUrl: '/assets/scada/eq08_control_panel.png'
+    thumbnailUrl: '/assets/scada/eq08_control_panel.jpg'
   }
 ];
 
@@ -553,6 +553,30 @@ export default function EquipmentProfile() {
   const navigate = useNavigate();
   const { facilityId } = useParams();
 
+  // Configurable base URL for custom GitHub Raw Assets mapping
+  const [assetBaseUrl, setAssetBaseUrl] = useState<string>(() => {
+    return localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE') || '';
+  });
+  const [showConfigPanel, setShowConfigPanel] = useState<boolean>(false);
+  const [tempBaseUrl, setTempBaseUrl] = useState<string>(assetBaseUrl);
+
+  const getFinalAssetUrl = (lhPath: string) => {
+    if (!lhPath) return '';
+    if (assetBaseUrl) {
+      const base = assetBaseUrl.endsWith('/') ? assetBaseUrl.slice(0, -1) : assetBaseUrl;
+      const cleanPath = lhPath.startsWith('/') ? lhPath : '/' + lhPath;
+      return `${base}${cleanPath}`;
+    }
+    return lhPath;
+  };
+
+  const handleSaveAssetBase = (url: string) => {
+    const cleanUrl = url.trim();
+    setAssetBaseUrl(cleanUrl);
+    localStorage.setItem('STATECRAFT_SCADA_ASSET_BASE', cleanUrl);
+    setShowConfigPanel(false);
+  };
+
   // Internal states derived from URL hashes
   const [level, setLevel] = useState<Level>('L1');
   const [selectedAssetCode, setSelectedAssetCode] = useState<AssetCode>('EQ-01');
@@ -677,6 +701,24 @@ export default function EquipmentProfile() {
         </div>
 
         <div className="flex items-center gap-4 font-mono text-[10px]">
+          {/* GitHub Assets Config Trigger */}
+          <button
+            onClick={() => {
+              setTempBaseUrl(assetBaseUrl);
+              setShowConfigPanel(true);
+            }}
+            className={cn(
+              "px-2 py-0.5 rounded border flex items-center gap-1.5 text-[9px] font-bold tracking-tight uppercase cursor-pointer transition-all",
+              assetBaseUrl 
+                ? "bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-700" 
+                : "bg-slate-50 hover:bg-slate-100 border-slate-300 text-slate-700 hover:text-[#2D6CDF]"
+            )}
+            title={tLabel('配置 GitHub 远程数据源', 'Configure GitHub Remote Assets')}
+          >
+            <Settings size={11} className={cn(assetBaseUrl && "text-amber-600 animate-pulse")} />
+            <span>{assetBaseUrl ? tLabel('图谱: 远程', 'ASSET: REMOTE') : tLabel('图谱: 本地', 'ASSET: LOCAL')}</span>
+          </button>
+
           <span className="bg-[#FAFBFD] border border-[#E2E7EF] px-2 py-0.5 rounded-sm font-semibold text-[#1A2330]">
             ENT-KZ-AKT-0091
           </span>
@@ -903,11 +945,11 @@ export default function EquipmentProfile() {
                 </div>
 
                 {/* Main isometric image representation & Hotspot layer */}
-                <div className="flex-1 bg-[#F8FAFC] rounded-[8px] relative overflow-hidden border border-[#GRID] flex items-center justify-center">
+                <div className="flex-1 bg-[#F8FAFC] rounded-[8px] relative overflow-hidden border border-slate-200 flex items-center justify-center">
                   
                   {/* Web Image Container */}
                   <img 
-                    src="/assets/scada/station_overview_isometric.png" 
+                    src={getFinalAssetUrl('/assets/scada/station_overview_isometric.jpg')} 
                     alt="Caspian Energy Compressor Station Layout" 
                     className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
                     referrerPolicy="no-referrer"
@@ -1097,7 +1139,7 @@ export default function EquipmentProfile() {
                     {/* Image Area */}
                     <div className="h-[180px] bg-[#11141B] rounded-[6px] border border-white/5 relative flex items-center justify-center p-3 overflow-hidden">
                       <img 
-                        src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
+                        src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
                         alt={`${selectedAsset.name} Active Real View`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)] transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -1118,7 +1160,7 @@ export default function EquipmentProfile() {
                           className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center cursor-zoom-out p-12"
                         >
                           <img 
-                            src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
+                            src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
                             alt={`${selectedAsset.name} Full View`} 
                             className="max-h-full max-w-full object-contain"
                             referrerPolicy="no-referrer"
@@ -1145,7 +1187,7 @@ export default function EquipmentProfile() {
                     {/* Schematic Image with interactive hotspots */}
                     <div className="h-[210px] bg-[#EEF2F8] rounded-[6px] border border-[#E2E7EF] relative flex items-center justify-center overflow-hidden p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                       <img 
-                        src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
+                        src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
                         alt={`${selectedAsset.name} SCADA Diagram`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)] pointer-events-none select-none"
                         referrerPolicy="no-referrer"
@@ -1310,7 +1352,7 @@ export default function EquipmentProfile() {
                 {/* Show cutaway or profile image with the selected hotspot active */}
                 <div className="flex-1 bg-[#EEF2F8]/70 rounded-[8px] border border-[#E2E7EF] relative flex items-center justify-center p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1.4px, transparent 1.4px)', backgroundSize: '12px 12px' }}>
                   <img 
-                    src={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
+                    src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
                     alt="SCADA context diagram" 
                     className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] opacity-40 select-none pointer-events-none"
                     referrerPolicy="no-referrer"
@@ -1586,6 +1628,127 @@ export default function EquipmentProfile() {
         </AnimatePresence>
 
       </div>
+
+      {/* Global GitHub Asset Source Configuration Modal */}
+      <AnimatePresence>
+        {showConfigPanel && (
+          <div className="fixed inset-0 bg-[#0c0e14]/75 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white border border-[#E2E7EF] rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col font-sans"
+            >
+              {/* Header */}
+              <div className="bg-[#0F1722] text-white px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Settings size={14} className="text-[#2D6CDF] animate-spin-slow" />
+                  <h3 className="text-xs font-black uppercase tracking-wider">
+                    {tLabel('数位工况图谱数据源配置', 'SCADA ASSETS DIRECTORY PROXY')}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowConfigPanel(false)}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer text-xs font-mono"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 flex flex-col gap-4 text-xs text-[#1A2330] leading-relaxed">
+                <div>
+                  <p className="font-semibold text-[#0F1722] mb-1">
+                    {tLabel('1. 远程图谱原理', '1. Remote Asset Proxy Concept')}
+                  </p>
+                  <p className="text-[#6A7686] text-[11px] leading-normal">
+                    {tLabel(
+                      '如果本地沙箱环境的静态资源因浏览器 iframe 安全策略、沙箱证书限制或跨域冲突无法正常加载，您可以开启远程 GitHub 数据源。系统将向公开的 GitHub Raw 内容服务（raw.githubusercontent.com）直接发送高质量图像请求。',
+                      'If native static files fail to render inside the sandbox iframe due to security constraints, you can bridge a GitHub Remote source. The app will fetch authentic images directly from your repository Raw URL.'
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-[#0F1722] mb-1">
+                    {tLabel('2. 在您的 GitHub 托管资源', '2. Hosting files on GitHub')}
+                  </p>
+                  <p className="text-[#6A7686] text-[11px] leading-normal">
+                    {tLabel(
+                      '系统内的全部设备图谱与物理实机照片已由本助手完美打包完毕。您可以将本地的 `public/assets/scada/*` 资源文件克隆/克隆提交到您个人的任何公开 GitHub 仓库上。',
+                      'We have compiled the 9 high-resolution graphics ready for display. Feel free to copy or push the files from `/public/assets/scada/*` directly into any public GitHub repository.'
+                    )}
+                  </p>
+                </div>
+
+                {/* Input Base URL */}
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3.5 flex flex-col gap-2">
+                  <span className="font-bold text-[10px] text-[#0F1722] uppercase tracking-wider font-mono">
+                    {tLabel('GitHub Raw 基准地址 (GitHub RAW Base URL)', 'GitHub RAW Access Base URL')}
+                  </span>
+                  
+                  <input
+                    type="text"
+                    value={tempBaseUrl}
+                    onChange={(e) => setTempBaseUrl(e.target.value)}
+                    placeholder="https://raw.githubusercontent.com/username/repo/main/public"
+                    className="w-full bg-white border border-[#C5CCD9] rounded px-3 py-1.5 text-[11px] font-mono focus:outline-none focus:ring-1 focus:ring-[#2D6CDF] placeholder:text-slate-300"
+                  />
+                  
+                  <div className="text-[10px] text-slate-500 font-mono leading-tight flex flex-col gap-1 mt-1">
+                    <span className="text-[#2D6CDF] font-semibold">{tLabel('【推荐地址模板】:', '[Pre-set URLs Templates]:')}</span>
+                    <button 
+                      onClick={() => setTempBaseUrl('https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public')}
+                      className="text-left hover:underline text-[#2D6CDF] truncate font-mono text-[9px]"
+                    >
+                      • https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public
+                    </button>
+                    <button 
+                      onClick={() => setTempBaseUrl('https://raw.githubusercontent.com/karlee01/AI-STATECRAFT/main/public')}
+                      className="text-left hover:underline text-[#2D6CDF] truncate font-mono text-[9px]"
+                    >
+                      • https://raw.githubusercontent.com/karlee01/AI-STATECRAFT/main/public
+                    </button>
+                    <button 
+                      onClick={() => setTempBaseUrl('')}
+                      className="text-[#D8454C] text-left hover:underline font-bold text-[9px] mt-1"
+                    >
+                      • {tLabel('清除配置并重置为本地 Public 文件夹 (Reset to Sandboxed Public Directory)', 'Reset to use native sandbox public paths')}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-[10px] text-slate-400 font-mono border-t border-slate-100 pt-2.5">
+                  {tLabel('实时资产地址映射解析预览 : ', 'Resolved Path Mapping Preview:')}
+                  <div className="mt-1 bg-slate-100 p-2 rounded text-[9px] font-mono break-all text-slate-600 leading-normal border border-slate-200">
+                    {tempBaseUrl 
+                      ? `${tempBaseUrl.endsWith('/') ? tempBaseUrl.slice(0, -1) : tempBaseUrl}/assets/scada/station_overview_isometric.jpg`
+                      : '/assets/scada/station_overview_isometric.jpg'
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="bg-slate-50 border-t border-slate-200 px-5 py-3 flex justify-end gap-2 text-xs">
+                <button
+                  onClick={() => setShowConfigPanel(false)}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 px-3 py-1.5 text-[10px] font-bold text-slate-700 rounded transition-all active:scale-95 cursor-pointer"
+                >
+                  {tLabel('取消', 'Cancel')}
+                </button>
+                <button
+                  onClick={() => handleSaveAssetBase(tempBaseUrl)}
+                  className="bg-[#2D6CDF] hover:bg-[#1E52B6] text-white px-4 py-1.5 text-[10px] font-bold rounded transition-all shadow active:scale-95 cursor-pointer"
+                >
+                  {tLabel('应用更新', 'Save & Apply')}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

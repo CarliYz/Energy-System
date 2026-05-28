@@ -72,13 +72,55 @@ export default function PipelineTimeSeries() {
     return pts;
   }, [scrubValue]);
 
-  const pathFromPts = (pts: typeof waveform, segFilter?: number) => {
-    const filtered = segFilter ? pts.filter(p => p.seg === segFilter) : pts;
-    if (filtered.length === 0) return '';
-    return filtered.map((p, i) =>
-      `${i === 0 ? 'M' : 'L'} ${(p.x / 100) * 100}% ${100 - ((p.y - 30) / 60) * 100}%`
-    ).join(' ');
+  const getX = (index: number) => {
+    return (index / 100) * 1000;
   };
+
+  const getY = (yVal: number) => {
+    const minVal = 30;
+    const maxVal = 100;
+    const height = 240;
+    const ratio = (yVal - minVal) / (maxVal - minVal);
+    return 270 - ratio * height;
+  };
+
+  const candlesticks = useMemo(() => {
+    return waveform.map((p, i) => {
+      const close = p.y;
+      const open = p.y - Math.sin(i * 1.5) * 3;
+      const high = Math.max(open, close) + Math.abs(Math.sin(i * 2.2) * 5) + 1;
+      const low = Math.min(open, close) - Math.abs(Math.cos(i * 1.8) * 4) - 1;
+      return {
+        x: getX(i),
+        open: getY(open),
+        close: getY(close),
+        high: getY(high),
+        low: getY(low),
+        isUp: close >= open,
+        seg: p.seg
+      };
+    });
+  }, [waveform]);
+
+  const connectedPath = useMemo(() => {
+    const pts = candlesticks.slice(0, 75);
+    if (pts.length === 0) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.close}`).join(' ');
+  }, [candlesticks]);
+
+  const forecastPath = useMemo(() => {
+    const pts = candlesticks.slice(74); // continuous from now
+    if (pts.length === 0) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.close}`).join(' ');
+  }, [candlesticks]);
+
+  const confidenceBandPath = useMemo(() => {
+    const pts = candlesticks;
+    if (pts.length === 0) return '';
+    const topPoints = pts.map(p => `${p.x} ${p.close - 15}`).join(' L ');
+    const bottomPoints = [...pts].reverse().map(p => `${p.x} ${p.close + 15}`).join(' L ');
+    return `M ${pts[0].x} ${pts[0].close - 15} L ${topPoints} L ${bottomPoints} Z`;
+  }, [candlesticks]);
 
   return (
     <div className="flex-1 flex flex-col bg-[#F4F6FA] text-[#1A2330] overflow-hidden h-full">
@@ -195,73 +237,97 @@ export default function PipelineTimeSeries() {
 
             {/* Center: SVG dynamic high-fidelity waveform chart */}
             <div className="flex-1 relative h-[280px] border border-[#E2E7EF] rounded bg-[#FCFDFE]">
-              <svg className="absolute inset-0 w-full h-full">
+              <svg viewBox="0 0 1000 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="ciGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2D6CDF" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="#2D6CDF" stopOpacity="0.02" />
+                    <stop offset="0%" stopColor="#2D6CDF" stopOpacity="0.14" />
+                    <stop offset="100%" stopColor="#2D6CDF" stopOpacity="0.01" />
                   </linearGradient>
                 </defs>
 
                 {/* Grid horizontal lines */}
                 {[0.2, 0.4, 0.6, 0.8].map((g, gi) => (
-                  <line key={gi} x1="0%" x2="100%" y1={`${g * 100}%`} y2={`${g * 100}%`}
+                  <line key={gi} x1="0" x2="1000" y1={g * 300} y2={g * 300}
                     stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
                 ))}
 
                 {/* Shifting background colors for different segments */}
-                <rect x="0%" y="0" width="30%" height="100%" fill="#F8FAFC" opacity="0.3" />
-                <rect x="30%" y="0" width="20%" height="100%" fill="#FFFFFF" opacity="0.5" />
-                <rect x="50%" y="0" width="25%" height="100%" fill="#FAFBFD" opacity="0.5" />
-                <rect x="75%" y="0" width="25%" height="100%" fill="#FFF5F5" opacity="0.3" />
+                <rect x="0" y="0" width="300" height="300" fill="#F8FAFC" opacity="0.3" />
+                <rect x="300" y="0" width="200" height="300" fill="#FFFFFF" opacity="0.5" />
+                <rect x="500" y="0" width="250" height="300" fill="#FAFBFD" opacity="0.5" />
+                <rect x="750" y="0" width="250" height="300" fill="#FFF5F5" opacity="0.3" />
 
                 {/* 1. Normal Baseline curve (dashed gray reference line) */}
-                <line x1="0%" x2="100%" y1="55%" y2="55%" stroke="#A8B2C0" strokeWidth="0.8" strokeDasharray="4 3" />
-                <text x="2%" y="53%" fontSize="8" fill="#A8B2C0" fontFamily="monospace" fontWeight="bold">BASELINE μ</text>
+                <line x1="0" x2="1000" y1={getY(58)} y2={getY(58)} stroke="#A8B2C0" strokeWidth="0.8" strokeDasharray="4 3" />
+                <text x="20" y={getY(58) - 5} fontSize="8.5" fill="#A8B2C0" fontFamily="monospace" fontWeight="bold">BASELINE μ</text>
 
-                {/* 2. 95% Confidence Interval Band ribbon (blue ribbon) */}
-                <path d={`${pathFromPts(waveform.map(p => ({ ...p, y: p.y + 4.2 })))}
-                         L 100% ${100 - ((waveform[waveform.length - 1].y - 4.2 - 30) / 60) * 100}%
-                         ${pathFromPts(waveform.map(p => ({ ...p, y: p.y - 4.2 })).reverse())} Z`}
-                  fill="url(#ciGrad)" />
+                {/* 2. 95% Confidence Interval Band ribbon */}
+                <path d={confidenceBandPath} fill="url(#ciGrad)" />
 
-                {/* SEG 1: Historical Area Line Chart */}
-                <path d={pathFromPts(waveform, 1)} stroke="#94A3B8" strokeWidth="1.2" strokeDasharray="3 3" fill="none" />
+                {/* 3. Connected Curve Line for the data points */}
+                <path d={connectedPath} stroke="#2D6CDF" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
-                {/* SEG 2: SCADA stream Line Chart */}
-                <path d={pathFromPts(waveform, 2)} stroke="#2D6CDF" strokeWidth="1.5" fill="none" />
-                {waveform.filter(p => p.seg === 2).map((p, i) => (
-                  <circle key={`scada-${i}`} cx={`${p.x}%`} cy={`${100 - ((p.y - 30) / 60) * 100}%`} r="1.5" fill="#2D6CDF" />
-                ))}
+                {/* 3b. Scatter points on top of the connected line */}
+                {candlesticks.slice(0, 75).map((cand, idx) => {
+                  let fillCol = '#64748B';
+                  if (cand.seg === 2) fillCol = '#2D6CDF';
+                  if (cand.seg === 3) fillCol = '#0F1722';
+                  if (idx % 2 === 0) {
+                    return (
+                      <circle key={`pt-${idx}`} cx={cand.x} cy={cand.close} r="2.5" fill={fillCol} />
+                    );
+                  }
+                  return null;
+                })}
 
-                {/* SEG 3: AI Dense Sampling Line Chart (≥360 points simulated visually) */}
-                <path d={pathFromPts(waveform, 3)} stroke="#0F1722" strokeWidth="1.8" fill="none" />
-                {waveform.filter(p => p.seg === 3).map((p, i) => (
-                  <circle key={`ai-${i}`} cx={`${p.x}%`} cy={`${100 - ((p.y - 30) / 60) * 100}%`} r="1.1" fill="#0F1722" />
-                ))}
+                {/* 4. Candlestick Bars representing K-line detailed movements */}
+                {candlesticks.slice(0, 75).map((cand, idx) => {
+                  const width = 5;
+                  const isUpColor = cand.isUp ? '#10B981' : '#EF4444';
+                  const isUpFill = cand.isUp ? '#ECFDF5' : '#FEF2F2';
+                  return (
+                    <g key={`cand-${idx}`}>
+                      <line x1={cand.x} x2={cand.x} y1={cand.low} y2={cand.high} stroke={isUpColor} strokeWidth="0.8" />
+                      <rect
+                        x={cand.x - width / 2}
+                        y={Math.min(cand.open, cand.close)}
+                        width={width}
+                        height={Math.max(Math.abs(cand.open - cand.close), 2.5)}
+                        fill={isUpFill}
+                        stroke={isUpColor}
+                        strokeWidth="1"
+                        className="transition-all duration-300"
+                      />
+                    </g>
+                  );
+                })}
 
-                {/* SEG 4: T+72H forecast drawing flow line (Animated Crimson Line) */}
-                <path d={pathFromPts(waveform, 4)} stroke="#D8454C" strokeWidth="2.2" fill="none"
-                  strokeDasharray="400" strokeDashoffset="400" id="forecastFlow">
-                  <animate attributeName="stroke-dashoffset" from="400" to="0" dur="3s" repeatCount="indefinite" />
-                </path>
+                {/* 5. SEG 4: Forecaster Fitted Bold Crimson Line (Connecting future forecast points) */}
+                <path d={forecastPath} stroke="#D8454C" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                
+                {/* Secondary predictive dashed glow line for forecasting visual flair */}
+                <path d={forecastPath} stroke="#EF4444" strokeWidth="1.2" fill="none" strokeDasharray="3 3" opacity="0.8" />
 
                 {/* Anomaly trigger marker on Seg 3 (around x=58%) */}
-                <circle cx="58%" cy="42%" r="5" fill="none" stroke="#D8454C" strokeWidth="2.5">
-                  <animate attributeName="r" from="4" to="11" dur="1.2s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" from="1" to="0" dur="1.2s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="58%" cy="42%" r="2.5" fill="#D8454C" />
+                {candlesticks[58] && (
+                  <g>
+                    <circle cx={candlesticks[58].x} cy={candlesticks[58].close} r="7" fill="none" stroke="#D8454C" strokeWidth="2.5">
+                      <animate attributeName="r" from="4" to="14" dur="1.2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" from="1" to="0" dur="1.2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx={candlesticks[58].x} cy={candlesticks[58].close} r="3" fill="#D8454C" />
+                  </g>
+                )}
 
                 {/* NOW Vertical delineation Line */}
-                <line x1="75%" x2="75%" y1="0" y2="100%" stroke="#D8454C" strokeWidth="1.5" strokeDasharray="3 2" />
-                <text x="75.5%" y="12" fontSize="9" fontWeight="bold" fill="#D8454C" fontFamily="monospace">NOW</text>
+                <line x1="750" x2="750" y1="0" y2="300" stroke="#D8454C" strokeWidth="1.5" strokeDasharray="3 2" />
+                <text x="755" y="16" fontSize="9" fontWeight="bold" fill="#D8454C" fontFamily="monospace">NOW</text>
 
                 {/* Zone Labels */}
-                <text x="5%" y="95%" fontSize="8.5" fontWeight="bold" fill="#94A3B8" fontFamily="monospace">SEG 1: HISTORICAL</text>
-                <text x="33%" y="95%" fontSize="8.5" fontWeight="bold" fill="#2D6CDF" fontFamily="monospace">SEG 2: SCADA FLOWS</text>
-                <text x="54%" y="95%" fontSize="8.5" fontWeight="bold" fill="#0F1722" fontFamily="monospace">SEG 3: AI SAMPLE (250MS)</text>
-                <text x="80%" y="95%" fontSize="8.5" fontWeight="bold" fill="#D8454C" fontFamily="monospace">SEG 4: T+72H FCAST</text>
+                <text x="25" y="285" fontSize="8.5" fontWeight="bold" fill="#94A3B8" fontFamily="monospace">SEG 1: HISTORICAL (K-LINE)</text>
+                <text x="325" y="285" fontSize="8.5" fontWeight="bold" fill="#2D6CDF" fontFamily="monospace">SEG 2: SCADA FLOWS</text>
+                <text x="525" y="285" fontSize="8.5" fontWeight="bold" fill="#0F1722" fontFamily="monospace">SEG 3: AI SAMPLES (250MS)</text>
+                <text x="775" y="285" fontSize="8.5" fontWeight="bold" fill="#D8454C" fontFamily="monospace">SEG 4: T+72H FORECAST</text>
               </svg>
 
               {/* Float pop assessment */}

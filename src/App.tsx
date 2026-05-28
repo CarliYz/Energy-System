@@ -11,6 +11,7 @@ import PipelineTimeSeries from './pages/PipelineTimeSeries';
 import WorkflowAttribution from './pages/WorkflowAttribution';
 import KnowledgeGraph from './pages/KnowledgeGraph';
 import EventAudit from './pages/EventAudit';
+import ProjectLifecycleAudit from './pages/ProjectLifecycleAudit';
 import ReportGeneration from './pages/ReportGeneration';
 import MinisterDashboard from './pages/MinisterDashboard';
 import SentimentConsole from './pages/SentimentConsole';
@@ -67,6 +68,7 @@ export default function App() {
 
             <Route path="audit">
               <Route path="event/:caseId" element={<EventAudit />} />
+              <Route path="project" element={<ProjectLifecycleAudit />} />
               <Route path="report" element={<ReportGeneration />} />
             </Route>
           </Route>

@@ -369,6 +369,12 @@ export default function EventAudit() {
             <div className="flex items-center gap-3">
               <span className="text-[10px] text-text-tertiary uppercase font-mono">{DATA.meta.case_id} | {DATA.meta.enterprise_id}</span>
             </div>
+            <button 
+              onClick={() => navigate('/audit/project')}
+              className="flex items-center gap-1 px-2.5 py-0.5 bg-violet-50 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 transition-all text-[9.5px] font-black uppercase rounded font-mono shadow-xs"
+            >
+              <span>{language === 'zh' ? '📊 切换至项目全周期 ↗' : '📊 PROJECT AUDIT ↗'}</span>
+            </button>
           </div>
         </div>
         <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-text-tertiary">

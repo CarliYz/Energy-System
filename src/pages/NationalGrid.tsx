@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, GeoJSON, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
@@ -9,8 +9,9 @@ import { COAL_BASINS } from '../data/coal';
 import { 
   Info, AlertTriangle, ChevronRight, Activity, MapPin, Layers, 
   Settings, Award, FileText, CheckCircle, Flame, ShieldAlert, Zap,
-  ArrowLeft
+  ArrowLeft, Map as MapIcon
 } from 'lucide-react';
+import { RegionalFacilitiesView } from './RegionalFacilities';
 
 // Custom icons using divIcon for absolute layout control and Palantir white compliance
 const createDivIcon = (html: string, size: [number, number] = [16, 16]) => L.divIcon({
@@ -127,6 +128,8 @@ const ACTIVE_CASES = [
 export default function NationalGrid() {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const [view, setView] = useState<'national' | 'regional'>('national');
+  const [activeRegion, setActiveRegion] = useState<string>('aktau');
   const [activeLayer, setActiveLayer] = useState<'ELEC' | 'OG' | 'COAL'>('ELEC');
   const [rightRailCollapsed, setRightRailCollapsed] = useState(false);
   const [geoData, setGeoData] = useState<any>(null);
@@ -168,7 +171,12 @@ export default function NationalGrid() {
       'kyzylorda': 'kyzylorda'
     };
     const routeId = idMap[cityId.toLowerCase()] || 'aktau';
-    navigate(`/sensing/regional/${routeId}`);
+    if (routeId === 'aktau') {
+      setActiveRegion('aktau');
+      setView('regional');
+    } else {
+      navigate(`/sensing/regional/${routeId}`);
+    }
   };
 
   // Static always-on city assets
@@ -469,10 +477,13 @@ export default function NationalGrid() {
           </div>
           <div className="flex items-center gap-1">
             <span 
-              onClick={() => navigate('/minister/dashboard')}
+              onClick={() => {
+                setView('national');
+                navigate('/minister/dashboard');
+              }}
               className="text-[10px] font-bold text-[#2D6CDF] bg-[#2D6CDF]/5 hover:bg-[#2D6CDF]/10 border border-[#2D6CDF]/15 px-2 py-0.5 rounded cursor-pointer transition-all uppercase tracking-wider"
             >
-              {tLabel('Sensing · National Grid', '首层面屏 · 国家大网')}
+              {view === 'national' ? tLabel('Sensing · National Grid', '首层面屏 · 国家大网') : tLabel('Sensing · Regional Drilldown', '下钻面屏 · 区域监控')}
             </span>
           </div>
         </div>
@@ -480,10 +491,13 @@ export default function NationalGrid() {
         {/* Center: Page Title and Metadata */}
         <div className="flex-1 text-center flex flex-col justify-center">
           <h1 className="text-[14px] font-black text-[#0F1722] uppercase tracking-wider leading-none mb-1">
-            {tLabel('NATIONAL ENERGY GRID · LIVE STATUS MONITOR', '国家能源一张网 · 实时状态监测与异常审计大屏')}
+            {view === 'national' 
+              ? tLabel('NATIONAL ENERGY GRID · LIVE STATUS MONITOR', '国家能源一张网 · 实时状态监测与异常审计大屏')
+              : tLabel('AKTAU REGIONAL FACILITY · LIVE STATUS MONITOR', '曼吉斯套 · 阿克套精密物联监测与异常审计大屏')
+            }
           </h1>
           <p className="text-[10px] text-[#6A7686] font-mono leading-none flex items-center justify-center gap-3">
-            <span>● 12 {tLabel('sources connected', '源设备物联接入')}</span>
+            <span>● {view === 'national' ? '12' : '45'} {tLabel('sources connected', '源设备物联接入')}</span>
             <span>•</span>
             <span>{tLabel('last sync 14:32:18', '上次高频安全同步: 今天 14:32:18')}</span>
             <span>•</span>
@@ -491,49 +505,109 @@ export default function NationalGrid() {
           </p>
         </div>
 
-        {/* Right Side: 3-layer toggle pills */}
+        {/* Right Side: 3-layer toggle pills or drill-down status */}
         <div className="w-[360px] flex justify-end">
-          <div className="flex items-center gap-1 bg-[#F4F6FA] border border-[#E2E7EF] rounded-full p-1 shadow-inner">
-            <button
-              onClick={() => setActiveLayer('ELEC')}
-              className={cn(
-                "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
-                activeLayer === 'ELEC'
-                  ? "bg-[#2D6CDF] text-white shadow-sm"
-                  : "text-[#6A7686] hover:bg-white"
-              )}
-            >
-              <Zap size={10} className="shrink-0" />
-              {tLabel('⚡ Electricity', '⚡ 主电网')}
-            </button>
-            <button
-              onClick={() => setActiveLayer('OG')}
-              className={cn(
-                "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
-                activeLayer === 'OG'
-                  ? "bg-[#FF6B35] text-white shadow-sm"
-                  : "text-[#6A7686] hover:bg-white"
-              )}
-            >
-              <Flame size={10} className="shrink-0" />
-              {tLabel('🔥 Oil & Gas', '🔥 油气网')}
-            </button>
-            <button
-              onClick={() => setActiveLayer('COAL')}
-              className={cn(
-                "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
-                activeLayer === 'COAL'
-                  ? "bg-[#0F1722] text-white shadow-sm"
-                  : "text-[#6A7686] hover:bg-white"
-              )}
-            >
-              <ShieldAlert size={10} className="shrink-0" />
-              {tLabel('⛏ Coal & Coupling', '⛏ 煤炭直供')}
-            </button>
-          </div>
+          {view === 'national' ? (
+            <div className="flex items-center gap-1 bg-[#F4F6FA] border border-[#E2E7EF] rounded-full p-1 shadow-inner">
+              <button
+                onClick={() => setActiveLayer('ELEC')}
+                className={cn(
+                  "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
+                  activeLayer === 'ELEC'
+                    ? "bg-[#2D6CDF] text-white shadow-sm"
+                    : "text-[#6A7686] hover:bg-white"
+                )}
+              >
+                <Zap size={10} className="shrink-0" />
+                {tLabel('⚡ Electricity', '⚡ 主电网')}
+              </button>
+              <button
+                onClick={() => setActiveLayer('OG')}
+                className={cn(
+                  "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
+                  activeLayer === 'OG'
+                    ? "bg-[#FF6B35] text-white shadow-sm"
+                    : "text-[#6A7686] hover:bg-white"
+                )}
+              >
+                <Flame size={10} className="shrink-0" />
+                {tLabel('🔥 Oil & Gas', '🔥 油气网')}
+              </button>
+              <button
+                onClick={() => setActiveLayer('COAL')}
+                className={cn(
+                  "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1.5",
+                  activeLayer === 'COAL'
+                    ? "bg-[#0F1722] text-white shadow-sm"
+                    : "text-[#6A7686] hover:bg-white"
+                )}
+              >
+                <ShieldAlert size={10} className="shrink-0" />
+                {tLabel('⛏ Coal & Coupling', '⛏ 煤炭直供')}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-[10.5px] bg-[#D8454C]/5 border border-[#D8454C]/15 px-3 py-1.5 rounded-md text-[#D8454C] font-bold font-mono uppercase shadow-sm">
+               <Activity size={12} className="animate-pulse" />
+               <span>{tLabel('Telemetry stream active', '里海高密物联遥测接通')}</span>
+            </div>
+          )}
         </div>
 
       </div>
+
+      {/* 3. VIEW SWITCHER BAR */}
+      <div className="h-10 bg-white border-b border-[#E2E7EF] px-5 flex items-center justify-between shrink-0 select-none z-10 transition-all">
+        <div className="flex bg-[#F4F6FA] border border-[#E2E7EF] rounded-md p-0.5 shadow-inner">
+          <button
+            onClick={() => setView('national')}
+            className={cn(
+              "px-4 py-1 text-[10.5px] font-black uppercase tracking-wider rounded-md transition-all flex items-center gap-1.5",
+              view === 'national' 
+                ? "bg-white text-[#0F1722] shadow font-extrabold border border-[#E2E7EF]" 
+                : "text-[#6A7686] hover:text-[#0f1722]"
+            )}
+          >
+            <span className={cn("w-1.5 h-1.5 rounded-full bg-[#2D6CDF]", view === 'national' && "animate-pulse")} />
+            {tLabel('National Overview', '全国一张网总览')}
+          </button>
+          
+          <button
+            onClick={() => {
+              setActiveRegion('aktau');
+              setView('regional');
+            }}
+            className={cn(
+              "px-4 py-1 text-[10.5px] font-black uppercase tracking-wider rounded-md transition-all flex items-center gap-1.5",
+              view === 'regional' 
+                ? "bg-white text-[#0F1722] shadow font-extrabold border border-[#E2E7EF]" 
+                : "text-[#6A7686] hover:text-[#0f1722]"
+            )}
+          >
+            <span className={cn("w-1.5 h-1.5 rounded-full bg-[#D8454C]", view === 'regional' && "animate-pulse")} />
+            {tLabel('Regional Drilldown (Aktau)', '阿克套区域下钻监控')}
+          </button>
+        </div>
+
+        {view === 'regional' ? (
+          <div className="flex items-center gap-3">
+             <span className="text-[10px] text-[#A8B2C0] font-mono uppercase tracking-wider">drilldown lock: mangystau / {activeRegion.toUpperCase()}</span>
+             <button
+               onClick={() => setView('national')}
+               className="text-[10px] font-black uppercase tracking-wider text-[#2D6CDF] hover:text-[#0F1722] flex items-center gap-1 font-mono border border-[#E2E7EF] bg-white px-2.5 py-1 rounded shadow-sm"
+             >
+               ← {tLabel('Back to Macro', '返回全国一张网')}
+             </button>
+          </div>
+        ) : (
+          <div className="text-[10px] text-[#6A7686] font-mono">
+            {tLabel('Sensing Act III • Macro Energy Infrastructure', '大网态势研判 • 第三幕')}
+          </div>
+        )}
+      </div>
+
+      {view === 'national' ? (
+        <>
 
       {/* 3. TOP KPI BAR — 4 SUPERVISORY TILES CARD */}
       <div className="h-[96px] bg-white border-b border-[#E2E7EF] grid grid-cols-4 gap-4 px-6 py-3.5 shrink-0 shadow-sm z-10">
@@ -1057,11 +1131,12 @@ export default function NationalGrid() {
                   </>
                 )}
 
-                {/* Layer-conditional active early warning pulse overlay with popup */}
+                {/* Layer-conditional active early warning pulse overlay with popup and hover tooltip */}
                 {activePulses
                   .filter(p => p.layer === activeLayer)
                   .map((p, idx) => {
                     const icon = p.type === 'red' ? MAP_ICONS.RED_PULSE(p.name) : MAP_ICONS.AMBER_PULSE(p.name);
+                    const isAktau = p.coords[0] === 43.6480 && p.coords[1] === 51.1720;
                     return (
                       <Marker 
                         key={`pulse-${idx}`}
@@ -1069,16 +1144,34 @@ export default function NationalGrid() {
                         icon={icon}
                         eventHandlers={{
                           click: () => {
-                            if (p.route) navigate(p.route);
+                            if (isAktau) {
+                              setActiveRegion('aktau');
+                              setView('regional');
+                            } else if (p.route) {
+                              navigate(p.route);
+                            }
                           }
                         }}
                       >
+                        {isAktau && (
+                          <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                            <div className="px-2 py-1 text-[10px] font-black bg-white text-[#D8454C] border border-[#D8454C]/25 shadow-lg rounded flex items-center gap-1 font-sans">
+                              {tLabel('Click to drill down to Aktau Regional Monitoring ↗', '点击下钻到 Aktau 区域监控 ↗')}
+                            </div>
+                          </Tooltip>
+                        )}
                         <Popup className="custom-popup">
                           <div className="p-2.5 min-w-[180px]">
                             <div className="text-[12px] font-bold text-[#D8454C]">{p.alert}</div>
                             <div className="text-[10px] text-[#0F1722] font-semibold mt-1">{p.name}</div>
                             <div className="text-[9.5px] text-[#6A7686] mt-1 leading-tight">
-                              {tLabel('Click to drill into multivariable AI early warning console', '点击大地图红点一键下钻至四分段预测高频时序图（ACT II 早期预警）')}
+                              {isAktau ? (
+                                <span className="text-[#2D6CDF] font-black flex items-center gap-1">
+                                  {tLabel('Click to drill down to Aktau Regional Monitoring ↗', '点击下钻到 Aktau 区域监控 ↗')}
+                                </span>
+                              ) : (
+                                tLabel('Click to drill into multivariable AI early warning console', '点击大地图红点一键下钻至四分段预测高频时序图（ACT II 早期预警）')
+                              )}
                             </div>
                           </div>
                         </Popup>
@@ -1258,6 +1351,12 @@ export default function NationalGrid() {
         </div>
 
       </div>
+        </>
+      ) : (
+        <div className="flex-1 flex overflow-hidden">
+          <RegionalFacilitiesView regionId={activeRegion} />
+        </div>
+      )}
 
       {/* 5. ⭐ NEW · BOTTOM "ACTIVE CASE STRIP" — BUILD · TRIGGER · ATTRIBUTE */}
       <div className="h-[88px] bg-white border-t border-[#E2E7EF] flex shrink-0 items-center justify-between px-6 gap-4 select-none shadow-sm z-10 overflow-hidden">

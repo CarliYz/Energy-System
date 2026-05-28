@@ -11,7 +11,7 @@ import { SENTIMENT_TOPICS } from './SentimentConsole';
 // @ts-ignore
 import almatyEnergyBill from '../assets/images/almaty_energy_bill_1779900527988.png';
 
-const KOL_LIST = [
+export const KOL_LIST = [
   { name: 'Informburo 31',     platform: 'YOUTUBE',  subs: '2.13M', avatar: 'https://i.pravatar.cc/64?img=1',  desc: 'Largest KZ Russian-language news channel; weekly review format' },
   { name: 'Kazakh Lawyer A.K.', platform: 'TIKTOK',   subs: '480K',  avatar: 'https://i.pravatar.cc/64?img=11', desc: 'Lawyer commenting on regulatory and consumer rights cases' },
   { name: 'Almaty_Resident',   platform: 'TELEGRAM', subs: '320K',  avatar: 'https://i.pravatar.cc/64?img=21', desc: 'Anonymous channel aggregating Almaty civic complaints' },
@@ -24,7 +24,7 @@ const KOL_LIST = [
   { name: 'KZ Citizens Today', platform: 'INSTAGRAM', subs: '41K',  avatar: 'https://i.pravatar.cc/64?img=42', desc: 'Photo-journal of livelihood pain points across KZ' },
 ];
 
-const POST_LIST = [
+export const POST_LIST = [
   { platform: 'TELEGRAM',  img: almatyEnergyBill,
     title: "ALMATY UTILITY BILL SURGE: CITIZENS EXPRESS DEEP OUTCRY OVER 35% HEATING & POWER INCREASE",
     title_zh: "阿拉木图公用事业费猛增：居民深感愤怒，供热及电费开支大涨 35%",
@@ -79,7 +79,7 @@ const POST_LIST = [
     content_en: 'Photo-report about how people live in regions without constant access to stable heating or pipeline gas.' },
 ];
 
-const SAMPLE_COMMENTS = [
+export const SAMPLE_COMMENTS = [
   { user: 'Kairat N.',        text: 'Finally they started talking about this openly. Need a full cleanup!',  text_zh: '终于有人公开谈论这件事了。需要彻底清理！',  likes: '1.2K' },
   { user: 'Almaty_Resident',  text: 'Why only now? These races on Al-Farabi happen every night.',          text_zh: '为什么现在才说？阿尔法拉比大道上的这些赛车每晚都在发生。',          likes: '856' },
 ];

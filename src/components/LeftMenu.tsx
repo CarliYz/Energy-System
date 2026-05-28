@@ -32,7 +32,8 @@ const MENU_GROUPS = [
     color: '#D8454C',
     items: [
       { id: 'facility', label: 'Facility Profile', path: '/sensing/facility/default', icon: BarChart3, count: 9 },
-      { id: 'timeseries', label: 'Pipeline Time-Series', path: '/warning/timeseries', icon: AlertTriangle, count: 12 },
+      { id: 'timeseries', label: 'Facility Anomaly Analysis', path: '/warning/timeseries', icon: AlertTriangle, count: 12 },
+      { id: 'consumption', label: 'Consumption Structure', path: '/consumption/structure', icon: ActivitySquare, count: null },
     ]
   },
   {

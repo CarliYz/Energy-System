@@ -6,6 +6,9 @@ import {
   BrainCircuit, AlertTriangle, Factory, Satellite, Hammer, Maximize2, Settings
 } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
+import { bollingerData, EnterpriseCapacity, KlinePoint } from '../data/bollinger_capacity';
+import { energyNews, NewsItem } from '../data/energy_news';
+import { sankeyData } from '../data/sentiment_sankey';
 
 // Helper UI Components Localized for Encapsulation
 function Pill({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'warning' | 'muted' }) {
@@ -234,6 +237,15 @@ export default function MinisterDashboard() {
 
   // Livelihood Gauge Hover State
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+
+  // New Bollinger Band & News States
+  const [activeHypothesisFilter, setActiveHypothesisFilter] = useState<'Strike' | 'AgingEquipment' | 'PipelineMaintenance' | 'Weather' | 'OilfieldRepair' | null>(null);
+  const [activeNewsTab, setActiveNewsTab] = useState<'DOMESTIC' | 'INTERNATIONAL'>('DOMESTIC');
+  const [hoveredKlineIndex, setHoveredKlineIndex] = useState<number | null>(null);
+
+  // View mode switcher for Quadrant C
+  const [sentimentViewMode, setSentimentViewMode] = useState<'funnel' | 'bubbles'>('funnel');
+  const [hoveredSankeyNodeId, setHoveredSankeyNodeId] = useState<string | null>(null);
 
   const tLabel = (en: string, zh: string) => {
     return language === 'zh' ? zh : en;
@@ -496,204 +508,291 @@ export default function MinisterDashboard() {
       {/* 3. PRIMARY 4-QUADRANT GRID */}
       <main className="flex-1 p-6 grid grid-cols-2 grid-rows-2 gap-6 overflow-hidden max-w-[1920px] w-full mx-auto" style={{ maxHeight: 'calc(100vh - 110px)' }}>
         
-        {/* QUADRANT A: TOP-LEFT — GDP × ENERGY EXPORT COUPLING */}
+        {/* QUADRANT A: TOP-LEFT — GDP × Capacity Bollinger Band Monitor */}
         <div className="bg-white rounded-[4px] border border-[#E2E7EF] p-4 flex flex-col justify-between overflow-hidden shadow-sm relative group/qa">
           
           <div className="flex items-start justify-between border-b border-[#E2E7EF] pb-1.5 shrink-0">
             <div>
               <h2 className="text-[12px] font-black text-[#0F1722] uppercase tracking-wide flex items-center gap-1.5">
                 <TrendingUp size={14} className="text-[#2D6CDF]" />
-                {tLabel('ENERGY EXPORT × GDP ELASTIC COUPLING MONITOR', '国家战略能源出口与月度GDP弹性指数波动联动映射')}
+                {language === 'zh' ? 'GDP × 产能 布林度区间监控' : 'GDP × Capacity Bollinger Band Monitor'}
               </h2>
               <p className="text-[9.5px] text-[#6A7686] font-medium leading-none mt-1">
-                {tLabel('Coupled time-series v1.4 (Brent/FX reference overlays)', '宏观敏感因子多重测算主大系 · 滚动高采样拟合')}
+                {language === 'zh' ? '国家骨干用电及工艺参数波包解算 · 7D 衰退预测' : 'Process parameters wave packet solver · 7D decay forecast'}
               </p>
             </div>
-            <span className="text-[9px] font-mono bg-[#2D6CDF]/5 border border-[#2D6CDF]/15 text-[#2D6CDF] px-1.5 py-0.5 rounded-[2px] tracking-tight">
-              {tLabel('methodology v1.4 · live', '模型算法 v1.4 · 实时')}
-            </span>
+            <div className="flex gap-1.5 text-[9px] font-mono">
+              <span className="bg-[#2D6CDF]/5 border border-[#2D6CDF]/15 text-[#2D6CDF] px-1.5 py-0.5 rounded-[2px] font-bold">
+                {language === 'zh' ? '今日异常' : 'BREACH'}: {bollingerData.todayCompliance.breach}
+              </span>
+              <span className="bg-[#FAFBFD] border border-[#E2E7EF] text-[#6A7686] px-1.5 py-0.5 rounded-[2px] font-bold">
+                {language === 'zh' ? '合规率' : 'COMPLIANCE'}: 91.2%
+              </span>
+            </div>
           </div>
 
-          <div className="flex-1 flex gap-4 my-2.5 overflow-hidden relative">
-            
-            {/* Real Customized High-Fidelity SVG Chart Plotter */}
-            <div className="flex-1 h-full min-h-[160px] flex flex-col justify-between relative bg-[#FAFBFD]/60 p-2 rounded-[2px] border border-[#E2E7EF]/70">
-              
-              <div className="flex items-center justify-between text-[9px] font-bold font-mono text-[#6A7686] shrink-0">
-                <span className="text-[#2D6CDF]">{tLabel('Primary Y: Fuel Export (USD BN, Solid)', '主轴(蓝实线): 原油重烃出口额 (十亿美金)')}</span>
-                <span className="text-[#E89518]">{tLabel('Secondary Y: GDP YoY Growth (%, Dashed)', '右轴(橙虚线): 辖区月度真实GDP增速 (%)')}</span>
+          {/* KPI Bar Local Row inside Card */}
+          <div className="grid grid-cols-3 gap-2 py-1.5 bg-slate-50/50 rounded-[2px] border border-slate-100 my-1 px-2 text-[10px] shrink-0">
+            <div className="flex flex-col">
+              <span className="text-[8px] font-bold uppercase text-text-tertiary">{language === 'zh' ? '2026 年度 GDP 目标' : 'GDP TARGET 2026'}</span>
+              <span className="font-bold text-[#2D6CDF] mt-0.5">{bollingerData.gdpTarget}% YoY</span>
+            </div>
+            <div className="flex flex-col border-l border-slate-100 pl-2">
+              <span className="text-[8px] font-bold uppercase text-text-tertiary">{language === 'zh' ? '油气贡献占比' : 'OIL & GAS SHARE'}</span>
+              <span className="font-bold text-text-primary mt-0.5">{bollingerData.oilGasShareTarget}%</span>
+            </div>
+            <div className="flex flex-col border-l border-slate-100 pl-2">
+              <span className="text-[8px] font-bold uppercase text-text-tertiary">{language === 'zh' ? '今日合规企业数' : 'TODAY COMPLIANCE'}</span>
+              <span className="font-bold text-[#2FA862] mt-0.5">{bollingerData.todayCompliance.ok} / {bollingerData.todayCompliance.total}</span>
+            </div>
+          </div>
+
+          <div className="flex-1 flex gap-3 my-1 overflow-hidden relative min-h-[145px]">
+            {/* Bollinger Band SVG Chart */}
+            <div className="flex-1 h-full min-h-[140px] flex flex-col justify-between relative bg-[#FAFBFD]/80 p-1.5 rounded-[2px] border border-[#E2E7EF]">
+              <div className="flex items-center justify-between text-[8px] font-mono text-[#6A7686] shrink-0">
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-[#E5E7EB] block rounded-sm" /> 
+                  布林带带宽 (Bollinger Bands ±2σ)
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-[#D8454C] block rounded-full" /> 
+                  {language === 'zh' ? '跌出带宽 (BREACH)' : 'Breach Warning'}
+                </span>
               </div>
 
-              <div className="flex-1 relative mt-1.5">
-                <svg 
-                  className="w-full h-full overflow-visible" 
-                  viewBox="0 0 480 160" 
+              <div className="flex-1 relative overflow-visible mt-1 pr-1">
+                <svg
+                  className="w-full h-full overflow-visible"
+                  viewBox="0 0 440 100"
                   preserveAspectRatio="none"
-                  onMouseMove={handleSvgMouseMove}
-                  onMouseLeave={() => setHoveredPointIndex(null)}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const pct = x / rect.width;
+                    const idx = Math.max(0, Math.min(bollingerData.kline.length - 1, Math.round(pct * (bollingerData.kline.length - 1))));
+                    setHoveredKlineIndex(idx);
+                  }}
+                  onMouseLeave={() => setHoveredKlineIndex(null)}
                 >
-                  {/* Subtle Y Grid lines */}
-                  <line x1="30" y1="20" x2="455" y2="20" stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
-                  <line x1="30" y1="52" x2="455" y2="52" stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
-                  <line x1="30" y1="84" x2="455" y2="84" stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
-                  <line x1="30" y1="116" x2="455" y2="116" stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
-                  <line x1="30" y1="148" x2="455" y2="148" stroke="#E2E7EF" strokeWidth="0.5" strokeDasharray="3 3" />
-
-                  {/* Red Shaded Headwind Zone (covering indices 9 to 11, representing Q2) */}
-                  <rect x="350" y="10" width="105" height="140" fill="#D8454C" fillOpacity="0.06" />
-                  <text x="355" y="24" fill="#D8454C" className="text-[8px] font-black font-mono tracking-tighter uppercase">
-                    {tLabel('Q2 head-wind: -3% export', 'Q2出口偏离阻力带 -3%')}
-                  </text>
-                  <text x="355" y="34" fill="#6A7686" className="text-[7.5px] font-mono tracking-tighter">
-                    {tLabel('-0.5pp GDP delta', 'GDP预期减幅 -0.5pp')}
-                  </text>
-
-                  {/* 1. Shaded confidence band area */}
-                  <path d={generateBandPath()} fill="#7CE7C4" fillOpacity="0.14" />
-
-                  {/* 2. Denser Gray Daily Spot points representing daily volatility */}
-                  {dailySpotData.map((pt, sIdx) => (
-                    <circle key={`pt-${sIdx}`} cx={pt.x} cy={pt.y} r="1.2" fill="#94A3B8" opacity="0.65" />
-                  ))}
-
-                  {/* 3. Export Trend curve line (Blue primary) */}
-                  <path d={generatePath(getExportY, 'export')} fill="none" stroke="#2D6CDF" strokeWidth="1.25" />
-
-                  {/* 4. Brent reference dotted line */}
-                  <path 
-                    d={`M ${chartData.map((d, i) => `${getX(i).toFixed(1)},${getExportY(13.2 + Math.sin(i * 0.6) * 0.7).toFixed(1)}`).join(' L ')}`} 
-                    fill="none" 
-                    stroke="#6A7686" 
-                    strokeWidth="0.8" 
-                    strokeDasharray="1.5 3" 
+                  {/* Bands Area Poly-fill */}
+                  <path
+                    d={`M ${bollingerData.kline.map((d, i) => `${(i / 66) * 440},${100 - ((d.upper - 360) / 90) * 100}`).join(' L ')}
+                        L ${[...bollingerData.kline].reverse().map((d, i) => `${((66 - i) / 66) * 440},${100 - ((d.lower - 360) / 90) * 100}`).join(' L ')} Z`}
+                    fill="#94A3B8"
+                    fillOpacity="0.12"
                   />
 
-                  {/* 5. Tenge / USD FX dotted line in rose */}
-                  <path 
-                    d={`M ${chartData.map((d, i) => `${getX(i).toFixed(1)},${getExportY(14.5 - Math.cos(i * 0.8) * 0.5).toFixed(1)}`).join(' L ')}`} 
-                    fill="none" 
-                    stroke="#B23A6A" 
-                    strokeWidth="0.75" 
-                    strokeDasharray="2 2" 
-                    opacity="0.85"
+                  {/* Midline representation */}
+                  <path
+                    d={`M ${bollingerData.kline.map((d, i) => `${(i / 66) * 440},${100 - ((d.mid - 360) / 90) * 100}`).join(' L ')}`}
+                    fill="none"
+                    stroke="#D1D5DB"
+                    strokeWidth="0.8"
+                    strokeDasharray="2 3"
                   />
 
-                  {/* 6. GDP Growth dashed line (Amber secondary) */}
-                  <path d={generatePath(getGdpY, 'gdp')} fill="none" stroke="#E89518" strokeWidth="1.2" strokeDasharray="3 2" />
+                  {/* Upper line */}
+                  <path
+                    d={`M ${bollingerData.kline.map((d, i) => `${(i / 66) * 440},${100 - ((d.upper - 360) / 90) * 100}`).join(' L ')}`}
+                    fill="none"
+                    stroke="#94A3B8"
+                    strokeWidth="0.75"
+                    strokeOpacity="0.5"
+                  />
 
-                  {/* 7. Target 6.0% line in Green */}
-                  <line x1="30" y1={getGdpY(6.0).toFixed(1)} x2="455" y2={getGdpY(6.0).toFixed(1)} stroke="#2FA862" strokeWidth="0.75" strokeDasharray="3 4" />
-                  <text x="35" y={(getGdpY(6.0) - 4).toFixed(1)} fill="#2FA862" className="text-[8px] font-black font-mono">
-                    {tLabel('Target GDP: 6.0%', '国家年度调控增速线 6.0%')}
-                  </text>
+                  {/* Lower line */}
+                  <path
+                    d={`M ${bollingerData.kline.map((d, i) => `${(i / 66) * 440},${100 - ((d.lower - 360) / 90) * 100}`).join(' L ')}`}
+                    fill="none"
+                    stroke="#94A3B8"
+                    strokeWidth="0.75"
+                    strokeOpacity="0.5"
+                  />
 
-                  {/* Interactive vertical crosshair indicator */}
-                  {hoveredPointIndex !== null && (
+                  {/* Value Line - splits historical (solid) and forecast (dashed orange) */}
+                  <path
+                    d={`M ${bollingerData.kline.slice(0, 61).map((d, i) => `${(i / 66) * 440},${100 - ((d.value - 360) / 90) * 100}`).join(' L ')}`}
+                    fill="none"
+                    stroke="#2D6CDF"
+                    strokeWidth="1.5"
+                  />
+                  
+                  <path
+                    d={`M ${bollingerData.kline.slice(60).map((d, i) => `${((i + 60) / 66) * 440},${100 - ((d.value - 360) / 90) * 100}`).join(' L ')}`}
+                    fill="none"
+                    stroke="#E89518"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                  />
+
+                  {/* Breach dots */}
+                  {bollingerData.kline.map((d, i) => {
+                    if (!d.breach) return null;
+                    const cx = (i / 66) * 440;
+                    const cy = 100 - ((d.value - 360) / 90) * 100;
+                    return (
+                      <g key={i}>
+                        <circle cx={cx} cy={cy} r="3" fill="#D8454C" />
+                        <circle cx={cx} cy={cy} r="6" fill="none" stroke="#D8454C" strokeWidth="0.7" className="animate-ping" style={{ animationDuration: '3s' }} />
+                      </g>
+                    );
+                  })}
+
+                  {/* Forecast splitting vertical line */}
+                  <line x1={(60 / 66) * 440} y1="0" x2={(60 / 66) * 440} y2="100" stroke="#94A3B8" strokeWidth="0.75" strokeDasharray="3 3" />
+                  <text x={(60 / 66) * 440 - 32} y="10" fill="#E89518" className="text-[7.5px] font-mono font-bold scale-90">7D FORECAST ›</text>
+
+                  {/* Interactive Crosshair */}
+                  {hoveredKlineIndex !== null && (
                     <>
-                      <line x1={getX(hoveredPointIndex)} y1="10" x2={getX(hoveredPointIndex)} y2="150" stroke="#0F1722" strokeWidth="0.5" />
-                      <circle cx={getX(hoveredPointIndex)} cy={getExportY(chartData[hoveredPointIndex].export)} r="4" fill="#2D6CDF" stroke="#ffffff" strokeWidth="1" />
-                      <circle cx={getX(hoveredPointIndex)} cy={getGdpY(chartData[hoveredPointIndex].gdp)} r="3.5" fill="#E89518" stroke="#ffffff" strokeWidth="1" />
+                      <line x1={(hoveredKlineIndex / 66) * 440} y1="0" x2={(hoveredKlineIndex / 66) * 440} y2="100" stroke="#1F2937" strokeWidth="0.5" />
+                      <circle cx={(hoveredKlineIndex / 66) * 440} cy={100 - ((bollingerData.kline[hoveredKlineIndex].value - 360) / 90) * 100} r="4" fill="#2D6CDF" stroke="#fff" strokeWidth="1" />
                     </>
                   )}
                 </svg>
 
-                {/* Dynamic Pop pulse indicator (Pop right edge on 4s update) */}
-                {chartUpdatePulse && (
-                  <div className="absolute top-2 right-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-[8px] font-bold px-1 py-0.5 rounded animate-bounce shrink-0 font-mono">
-                    +DATA STREAM RE-SENSING 60HZ
-                  </div>
-                )}
-
-                {/* Multi-metric Tooltip box inside container */}
-                {hoveredPointIndex !== null && (
-                  <div className="absolute top-3 left-[40px] bg-[#0F1722] text-white p-2 rounded-[2px] shadow-lg border border-white/10 z-[1200] max-w-[190px] font-mono text-[9px] pointer-events-none">
-                    <div className="text-white/60 font-black border-b border-white/10 pb-0.5 mb-1 text-[10px]">
-                      {chartData[hoveredPointIndex].month}
+                {/* Interactive Tooltip Inside Chart */}
+                {hoveredKlineIndex !== null && (
+                  <div className="absolute top-2 left-2 bg-[#0F1722] text-white p-2 text-[8.5px] font-mono rounded border border-white/10 z-30 leading-snug w-[170px] pointer-events-none">
+                    <div className="text-white/60 font-black border-b border-white/5 pb-0.5 mb-1 flex justify-between">
+                      <span>{bollingerData.kline[hoveredKlineIndex].date}</span>
+                      {bollingerData.kline[hoveredKlineIndex].forecast && <span className="text-amber-400 font-bold">FORECAST</span>}
                     </div>
-                    <div className="flex justify-between gap-3 text-white">
-                      <span>Export Volume:</span>
-                      <strong className="text-sky-400 font-bold">{chartData[hoveredPointIndex].export} BN USD</strong>
+                    <div className="flex justify-between">
+                      <span>{language === 'zh' ? '真实产能指标' : 'Current Value'}</span>
+                      <strong className="text-sky-400 font-black">{bollingerData.kline[hoveredKlineIndex].value} GWh</strong>
                     </div>
-                    <div className="flex justify-between gap-3 text-white">
-                      <span>Monthly GDP YoY:</span>
-                      <strong className="text-amber-400 font-bold">{chartData[hoveredPointIndex].gdp}%</strong>
+                    <div className="flex justify-between text-white/80">
+                      <span>{language === 'zh' ? '布林中轨' : 'Bollinger Mid'}</span>
+                      <span>{bollingerData.kline[hoveredKlineIndex].mid}</span>
                     </div>
-                    <div className="flex justify-between gap-3 text-white/75 mt-0.5 border-t border-white/5 pt-0.5 text-[8.5px]">
-                      <span>Brent Reference:</span>
-                      <span>$79.42/bbl</span>
+                    <div className="flex justify-between text-white/50">
+                      <span>BB Bounds</span>
+                      <span>[{bollingerData.kline[hoveredKlineIndex].lower} - {bollingerData.kline[hoveredKlineIndex].upper}]</span>
                     </div>
-                    <div className="flex justify-between gap-3 text-white/75 text-[8.5px]">
-                      <span>KZT/USD Index:</span>
-                      <span>448.20</span>
-                    </div>
+                    {bollingerData.kline[hoveredKlineIndex].breach && (
+                      <div className="text-[#D8454C] font-black border-t border-[#D8454C]/25 mt-1 pt-0.5 animate-pulse">
+                        ⚠️ BREACH: OUT OF SAFETY BOUNDS
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* X-axis Month Label indicators */}
-              <div className="flex justify-between text-[8px] text-[#A8B2C0] font-mono shrink-0 px-2 mt-1">
-                {chartData.map((d, i) => (
-                  <span key={d.month} className={d.month.includes('26') ? 'text-[#0F1722] font-black' : ''}>
-                    {d.month}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Micro-stats Stack (Right Column 190px) */}
-            <div className="w-[190px] flex flex-col justify-between shrink-0 font-mono bg-[#FAFBFD]/60 border border-[#E2E7EF] rounded-[2px] p-2.5">
-              
-              <div>
-                <span className="text-[8.5px] text-[#6A7686] block font-bold uppercase tracking-wider uppercase">{tLabel('▸ EXPORT VOLATILITY', '▸ 出口重箱月度波动率')}</span>
-                <span className="text-[13px] font-black text-[#0F1722] block mt-0.5 leading-none">σ = 0.42 <span className="text-[9px] font-normal text-[#6A7686]">(98%-pct)</span></span>
-                <svg className="w-[130px] h-[15px] mt-1" viewBox="0 0 100 20">
-                  <path d="M 0 10 L 15 12 L 30 5 L 45 15 L 60 8 L 75 18 L 90 2 L 100 10" fill="none" stroke="#6A7686" strokeWidth="1" />
-                </svg>
-              </div>
-
-              <div className="border-t border-[#E2E7EF] my-1.5 pt-1.5">
-                <span className="text-[8.5px] text-[#6A7686] block font-bold uppercase tracking-wider uppercase">{tLabel('▸ OIL ELASTICITY β', '▸ 原油综合弹性系数 β')}</span>
-                <span className="text-[13px] font-black text-[#0F1722] block mt-0.5 leading-none">0.04</span>
-                <span className="text-[8px] text-[#A8B2C0] block mt-0.5 uppercase">95% CI: [0.03 – 0.05] (ifo-wp)</span>
-              </div>
-
-              <div className="border-t border-[#E2E7EF] pt-1.5">
-                <span className="text-[8.5px] text-[#6A7686] block font-bold uppercase tracking-wider uppercase">{tLabel('▸ HYDROCARBON GDP SHARE', '▸ 能耗占国民产出比例')}</span>
-                <span className="text-[13px] font-black text-[#0F1722] block mt-0.5 leading-none">20.2%</span>
-                <span className="text-[8px] text-[#A8B2C0] block mt-0.5 uppercase">Source: S&P ratings 2025</span>
+              {/* Bottom axes */}
+              <div className="flex justify-between text-[7px] text-[#A8B2C0] font-mono shrink-0 px-1 mt-0.5">
+                <span>03-22</span>
+                <span>04-12</span>
+                <span>05-02</span>
+                <span>05-22 (TODAY)</span>
+                <span className="text-[#E89518] font-bold">05-29 (PROJ)</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom row (Full width) — Commodity ribbon + Formula bar */}
-          <div className="flex border-t border-[#E2E7EF] pt-2 shrink-0 gap-3 items-center">
-            
-            {/* L: Commodity ribbons (60%) */}
-            <div className="w-[60%] grid grid-cols-4 gap-2">
-              {COMMODITY_TILES.map((t, idx) => (
-                <div key={idx} className="bg-[#FAFBFD] border border-[#E2E7EF] p-1.5 rounded-[2px] relative overflow-hidden">
-                  <span className="text-[8px] text-[#6A7686] font-black tracking-widest block uppercase">
-                    {language === 'zh' ? t.name_zh : t.name_en}
-                  </span>
-                  <span className="text-[11px] font-mono font-bold text-[#0F1722] block leading-none mt-0.5">{t.val}</span>
-                  <span className="text-[8.5px] font-mono leading-none font-bold block mt-1" style={{ color: t.pct.startsWith('96') ? '#E89518' : '#2FA862' }}>
-                    {t.pct} plan
-                  </span>
-                </div>
-              ))}
+          {/* Bottom Side-by-Side Area */}
+          <div className="grid grid-cols-5 gap-3 pt-2 border-t border-[#E2E7EF] shrink-0 h-[105px]">
+            {/* L: 60% Width - Checklists and Enterprise filters */}
+            <div className="col-span-3 flex flex-col justify-between overflow-hidden">
+              <span className="text-[8.5px] font-black uppercase text-text-secondary mb-1">
+                {language === 'zh' ? '跌出带宽原因归因定位' : 'BREACH HYPOTHESIS & ROOT ATTRIBUTION'}
+              </span>
+
+              {/* Quick Checklist Filter row */}
+              <div className="flex gap-1 overflow-x-auto pb-1.5 scrollbar-none shrink-0">
+                {[
+                  { key: 'AgingEquipment', zh: '设备老化', en: 'Aging Eq.' },
+                  { key: 'Strike', zh: '员工罢工', en: 'Strike' },
+                  { key: 'PipelineMaintenance', zh: '管道维修', en: 'Pipe Maint.' },
+                  { key: 'Weather', zh: '天气因素', en: 'Weather' },
+                  { key: 'OilfieldRepair', zh: '油田维修', en: 'Oilfield Rep.' }
+                ].map((item) => {
+                  const isActive = activeHypothesisFilter === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => setActiveHypothesisFilter(activeHypothesisFilter === item.key ? null : item.key as any)}
+                      className={`px-1.5 py-0.5 rounded-[2px] text-[8px] font-mono whitespace-nowrap border transition-all ${
+                        isActive 
+                        ? 'bg-[#D8454C] text-white border-[#D8454C]' 
+                        : 'bg-[#FAFBFD] hover:bg-slate-100 text-text-secondary border-slate-200'
+                      }`}
+                    >
+                      {language === 'zh' ? item.zh : item.en}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Company Compliance Status Miniature table */}
+              <div className="flex-1 overflow-y-auto space-y-1 bg-[#FAFBFD]/60 border border-slate-100 p-1.5 rounded-[2px]">
+                {bollingerData.enterprises
+                  .filter(ent => !activeHypothesisFilter || ent.hypothesis === activeHypothesisFilter)
+                  .slice(0, 3)
+                  .map((ent) => {
+                    const isBreach = ent.status === 'breach';
+                    const isWarn = ent.status === 'warning';
+                    return (
+                      <div key={ent.id} className="flex justify-between items-center text-[8.5px] font-mono">
+                        <span className="text-text-primary font-bold">{ent.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-text-tertiary">σ = {ent.sigma > 0 ? `+${ent.sigma}` : ent.sigma}</span>
+                          <span className={`px-1 rounded-[1px] text-[7.5px] font-black uppercase ${
+                            isBreach ? 'bg-red-50 text-red-600' : isWarn ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'
+                          }`}>
+                            {ent.status}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                })}
+              </div>
             </div>
 
-            {/* R: Formula Strip (No dark background, pure refined white) (40%) */}
-            <div className="w-[40%] bg-[#FAFBFD]/80 border border-[#E2E7EF] rounded-[2px] p-1.5 font-mono text-[8.5px] leading-snug">
-              <div className="flex justify-between items-center text-[#0F1722] font-black border-b border-[#E2E7EF] pb-0.5 mb-0.5">
-                <span>ΔGDP_annual ≈ β · ΔP_oil · s_oil (model v1.4)</span>
-                <span className="text-[#D8454C] shrink-0 font-black">RISK: HIGH</span>
+            {/* R: 40% Width - Tabbed News Feed Briefing */}
+            <div className="col-span-2 flex flex-col justify-between overflow-hidden border-l border-[#E2E7EF] pl-3">
+              <div className="flex justify-between items-center shrink-0 mb-1">
+                <span className="text-[8.5px] font-black uppercase text-text-secondary">
+                  {language === 'zh' ? '能源方向新闻滚动' : 'METRIC NEWS'}
+                </span>
+                
+                {/* News feed small tab selector */}
+                <div className="flex gap-1.5 text-[8px] font-black font-mono">
+                  <button 
+                    onClick={() => setActiveNewsTab('DOMESTIC')}
+                    className={`pb-0.5 border-b ${activeNewsTab === 'DOMESTIC' ? 'text-[#2D6CDF] border-[#2D6CDF]' : 'text-text-tertiary border-transparent'}`}
+                  >
+                    {language === 'zh' ? '国内' : 'DOM'}
+                  </button>
+                  <button 
+                    onClick={() => setActiveNewsTab('INTERNATIONAL')}
+                    className={`pb-0.5 border-b ${activeNewsTab === 'INTERNATIONAL' ? 'text-[#2D6CDF] border-[#2D6CDF]' : 'text-text-tertiary border-transparent'}`}
+                  >
+                    {language === 'zh' ? '国际' : 'INT'}
+                  </button>
+                </div>
               </div>
-              <div className="text-[#6A7686]">
-                β = 0.04 (ifo-WP-81)  ·  s_oil = 0.20 (S&P 2025)<br />
-                s_export = 0.54 (UNCTAD)  ·  scenario: -3% MoM export<br />
-                <span className="text-[#0F1722] font-semibold">→ ΔGDP forecast: </span>
-                <strong className="text-[#D8454C] font-black underline">-0.24 pp annual</strong> [95% CI: -0.15, -0.33]
+
+              {/* Tabbed content displaying 2 items */}
+              <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5">
+                {(activeNewsTab === 'DOMESTIC' ? energyNews.domestic : energyNews.international)
+                  .slice(0, 2)
+                  .map((news) => {
+                    return (
+                      <div key={news.id} className="group/news border-b border-slate-100/60 pb-1 last:border-0">
+                        <div className="flex items-center justify-between text-[8px] text-[#A8B2C0] font-mono leading-none">
+                          <span className="font-bold text-text-secondary">{news.region} · {news.time}</span>
+                          <span className={`scale-90 px-0.5 rounded-[1px] font-bold ${
+                            news.severity === 'HIGH' ? 'bg-red-50 text-red-500' : news.severity === 'MED' ? 'bg-amber-50 text-amber-500' : 'bg-slate-150 text-text-tertiary'
+                          }`}>{news.severity}</span>
+                        </div>
+                        <h4 className="text-[9.5px] font-bold text-text-primary mt-0.5 leading-snug line-clamp-1 group-hover/news:text-[#2D6CDF] group-hover/news:underline cursor-pointer">
+                          {news.title}
+                        </h4>
+                      </div>
+                    );
+                })}
               </div>
             </div>
           </div>
@@ -801,82 +900,200 @@ export default function MinisterDashboard() {
           </div>
         </div>
 
-        {/* QUADRANT C: BOTTOM-LEFT — SENTIMENT DYNAMIC BUBBLES */}
+        {/* QUADRANT C: BOTTOM-LEFT — SENTIMENT DUAL VIEW COMPONENT */}
         <div className="bg-white rounded-[4px] border border-[#E2E7EF] p-4 flex flex-col justify-between overflow-hidden shadow-sm relative group/qc">
           
           <div className="flex items-start justify-between border-b border-[#E2E7EF] pb-1.5 shrink-0">
             <div>
               <h2 className="text-[12px] font-black text-[#0F1722] uppercase tracking-wide flex items-center gap-1.5">
                 <Users size={14} className="text-[#B23A6A]" />
-                {tLabel('ENERGY SENTIMENT SIGNAL · REAL-TIME NLP MONITOR', '社会学网络涉能耗舆论震荡信号 · 智能体私域及公域多维监听')}
+                {sentimentViewMode === 'funnel' 
+                  ? (language === 'zh' ? '今日舆情漏斗' : 'Sentiment Funnel · Today')
+                  : (language === 'zh' ? '社会学涉能耗舆论震荡信号' : 'ENERGY SENTIMENT SIGNAL · NLP MONITOR')}
               </h2>
               <p className="text-[9.5px] text-[#6A7686] font-medium leading-none mt-1">
-                {tLabel('9 platforms scan · 1.8M signals daily · NLP token matching v1.5', '自然语言深度神经网络本体模型全面监听 · 单个气泡代表热点汇聚话题舱')}
+                {language === 'zh' ? '涉能情绪层级收敛透视 · 跨平台 NLP 解析' : '収敛透视 · Multi-tier semantic NLP converged analytics'}
               </p>
             </div>
-            {/* Live active new counter label as requested */}
-            <span className="text-[9px] font-mono text-[#B23A6A] bg-[#B23A6A]/10 border border-[#B23A6A]/20 px-1.5 py-0.5 rounded-[2px]">
-              {tLabel('+12 NEW topics in last 60 min · +1,408 posts', '+12个微型安全舆情分支 · 1小时内激增1,408条新回帖')}
-            </span>
+            
+            {/* View switcher buttons styled like local pill options */}
+            <div className="flex gap-1 bg-slate-100 p-0.5 rounded-[2px] text-[8.5px] font-bold font-mono">
+              <button
+                onClick={() => setSentimentViewMode('funnel')}
+                className={`px-1.5 py-0.5 rounded-[1px] ${sentimentViewMode === 'funnel' ? 'bg-white text-[#2D6CDF] shadow-xs' : 'text-text-tertiary'}`}
+              >
+                {language === 'zh' ? '漏斗流' : 'Funnel'}
+              </button>
+              <button
+                onClick={() => setSentimentViewMode('bubbles')}
+                className={`px-1.5 py-0.5 rounded-[1px] ${sentimentViewMode === 'bubbles' ? 'bg-white text-[#2D6CDF] shadow-xs' : 'text-text-tertiary'}`}
+              >
+                {language === 'zh' ? '话题泡' : 'Cloud'}
+              </button>
+            </div>
           </div>
 
-          {/* Semicircular bubble cloud container (Relative mapping with infinite Brownian keyframe drift) */}
-          <div className="flex-1 my-2 bg-slate-50/50 rounded-[2px] border border-[#E2E7EF] p-2 relative overflow-hidden h-[180px]">
-            <AnimatePresence mode="popLayout">
-              {sentimentTopics.map((topic, i) => {
-                const coord = BUBBLE_COORDS[i];
-                if (!coord) return null;
-                const isSelected = topic.id === 'ENG-001';
-                const isSwapTarget = randomSwapIdx === i;
+          {/* DUAL RENDER LOGIC */}
+          <div className="flex-1 my-2 bg-slate-50/60 rounded-[2px] border border-[#E2E7EF] p-2 relative overflow-hidden h-[180px] flex items-center justify-center">
+            {sentimentViewMode === 'funnel' ? (
+              /* View A: Sankey Funnel Chart */
+              <div className="w-full h-full relative" onClick={() => navigate('/warning/sentiment')}>
+                {/* Connections (Links) SVG */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+                  {sankeyData.links.map((link, idx) => {
+                    const fromNode = sankeyData.nodes.find(n => n.id === link.source);
+                    const toNode = sankeyData.nodes.find(n => n.id === link.target);
+                    if (!fromNode || !toNode) return null;
 
-                return (
-                  <motion.div
-                    key={`${topic.id}-${i}`}
-                    onClick={() => navigate('/sentiment/console')}
-                    className="absolute cursor-pointer hover:scale-[1.15] active:scale-[0.9] flex flex-col justify-center items-center text-center shadow transition-all duration-300 pointer-events-auto border border-black/5"
-                    style={{
-                      left: coord.left,
-                      top: coord.top,
-                      width: `${topic.size}px`,
-                      height: `${topic.size}px`,
-                      backgroundColor: topic.color,
-                      borderRadius: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      zIndex: isSelected ? 30 : 10,
-                    }}
-                    animate={isSwapTarget ? { scale: [1, 0.1, 1], opacity: [1, 0, 1] } : {
-                      x: coord.dx,
-                      y: coord.dy,
-                    }}
-                    transition={{
-                      duration: coord.dur,
-                      repeat: isSwapTarget ? 0 : Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <div className="flex flex-col items-center px-1 max-w-full">
-                      {/* Volume metrics */}
-                      <span className="text-[7.5px] font-mono text-white/85 leading-none font-bold">
-                        {topic.vol}
-                      </span>
-                      {/* Topic localized titles */}
-                      <span className="text-[8.5px] font-black text-white leading-tight my-0.5 tracking-tight line-clamp-2 uppercase font-sans">
-                        {language === 'zh' ? topic.topic_zh : topic.topic_en}
-                      </span>
-                      {/* Sentiment scalar metric */}
-                      <span className="text-[7px] font-mono bg-black/20 text-white leading-none px-1 rounded-sm py-0.2">
-                        {topic.sentiment.toFixed(2)}
-                      </span>
-                    </div>
+                    // Coordinates helper mapped directly
+                    const getPos = (id: string, col: 1|2|3|4) => {
+                      const colNodes = sankeyData.nodes.filter(n => n.col === col);
+                      const i = colNodes.findIndex(n => n.id === id);
+                      const t = colNodes.length;
+                      
+                      let x = 10;
+                      if (col === 1) x = 15;
+                      else if (col === 2) x = 135;
+                      else if (col === 3) x = 255;
+                      else if (col === 4) x = 365;
 
-                    {/* Red pulse ring layer on top Critical Topic ENG-001 */}
-                    {isSelected && (
-                      <span className="absolute -inset-1.5 rounded-full border border-[#D8454C] animate-ping opacity-60 pointer-events-none" />
-                    )}
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+                      const spacing = 165 / (t + 1);
+                      const y = spacing * (i + 1) + 8;
+                      return { x, y };
+                    };
+
+                    const from = getPos(link.source, fromNode.col);
+                    const to = getPos(link.target, toNode.col);
+
+                    const startX = from.x + 65; // Source node card width offset
+                    const startY = from.y;
+                    const endX = to.x;
+                    const endY = to.y;
+                    const dx = endX - startX;
+
+                    const d = `M ${startX} ${startY} C ${startX + dx * 0.4} ${startY}, ${startX + dx * 0.6} ${endY}, ${endX} ${endY}`;
+                    
+                    const isHovered = hoveredSankeyNodeId === link.source || hoveredSankeyNodeId === link.target;
+                    const hasActiveHover = hoveredSankeyNodeId !== null;
+
+                    let strokeColor = '#CBD5E1';
+                    if (fromNode.color === 'red' || toNode.color === 'red') strokeColor = '#FCA5A5';
+                    else if (fromNode.color === 'yellow' || toNode.color === 'yellow') strokeColor = '#FDE047';
+
+                    return (
+                      <path
+                        key={idx}
+                        d={d}
+                        fill="none"
+                        stroke={strokeColor}
+                        strokeWidth={isHovered ? 2.5 : 1}
+                        strokeOpacity={hasActiveHover ? (isHovered ? 0.8 : 0.05) : 0.28}
+                        className="transition-all duration-300"
+                      />
+                    );
+                  })}
+                </svg>
+
+                {/* Nodes Container */}
+                <div className="absolute inset-0 z-20 pointer-events-none">
+                  {sankeyData.nodes.map((node) => {
+                    const colNodes = sankeyData.nodes.filter(n => n.col === node.col);
+                    const i = colNodes.findIndex(n => n.id === node.id);
+                    const t = colNodes.length;
+                    
+                    let x = 10;
+                    if (node.col === 1) x = 15;
+                    else if (node.col === 2) x = 135;
+                    else if (node.col === 3) x = 255;
+                    else if (node.col === 4) x = 365;
+
+                    const spacing = 165 / (t + 1);
+                    const y = spacing * (i + 1) + 8;
+
+                    const isNodeHovered = hoveredSankeyNodeId === node.id;
+                    const pillColorClass = node.color === 'red' ? 'border-red-350 bg-red-50 text-red-700' : node.color === 'yellow' ? 'border-amber-250 bg-amber-50 text-amber-700' : 'border-emerald-250 bg-emerald-50 text-emerald-700';
+
+                    return (
+                      <div
+                        key={node.id}
+                        onMouseEnter={() => setHoveredSankeyNodeId(node.id)}
+                        onMouseLeave={() => setHoveredSankeyNodeId(null)}
+                        className={`absolute pointer-events-auto cursor-pointer border rounded-[2px] px-1.5 py-0.5 shadow-sm transition-all duration-300 select-none flex flex-col justify-center ${pillColorClass} ${
+                          isNodeHovered ? 'scale-105 shadow-md border-slate-400' : ''
+                        }`}
+                        style={{
+                          left: `${x}px`,
+                          top: `${y - 12}px`,
+                          width: node.col === 4 ? '90px' : '65px',
+                          height: '24px'
+                        }}
+                      >
+                        <span className="text-[7.5px] font-black tracking-tight leading-none uppercase truncate">
+                          {language === 'zh' ? node.label_zh : node.label}
+                        </span>
+                        <span className="text-[6.5px] font-mono leading-none mt-0.5 opacity-80 scale-95 origin-left">
+                          {(node.volume / 1000).toFixed(1)}k signals
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              /* View B: Original Bubble Cloud */
+              <div className="w-full h-full relative">
+                <AnimatePresence mode="popLayout">
+                  {sentimentTopics.map((topic, i) => {
+                    const coord = BUBBLE_COORDS[i];
+                    if (!coord) return null;
+                    const isSelected = topic.id === 'ENG-001';
+                    const isSwapTarget = randomSwapIdx === i;
+
+                    return (
+                      <motion.div
+                        key={`${topic.id}-${i}`}
+                        onClick={() => navigate('/warning/sentiment')}
+                        className="absolute cursor-pointer hover:scale-[1.15] active:scale-[0.9] flex flex-col justify-center items-center text-center shadow transition-all duration-300 pointer-events-auto border border-black/5"
+                        style={{
+                          left: coord.left,
+                          top: coord.top,
+                          width: `${topic.size * 0.95}px`,
+                          height: `${topic.size * 0.95}px`,
+                          backgroundColor: topic.color,
+                          borderRadius: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: isSelected ? 30 : 10,
+                        }}
+                        animate={isSwapTarget ? { scale: [1, 0.1, 1], opacity: [1, 0, 1] } : {
+                          x: coord.dx,
+                          y: coord.dy,
+                        }}
+                        transition={{
+                          duration: coord.dur,
+                          repeat: isSwapTarget ? 0 : Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <div className="flex flex-col items-center px-1 max-w-full">
+                          <span className="text-[7px] font-mono text-white/85 leading-none font-bold">
+                            {topic.vol}
+                          </span>
+                          <span className="text-[8px] font-black text-white leading-tight my-0.5 tracking-tight line-clamp-2 uppercase font-sans">
+                            {language === 'zh' ? topic.topic_zh : topic.topic_en}
+                          </span>
+                          <span className="text-[6.5px] font-mono bg-black/20 text-white leading-none px-1 rounded-sm py-0.2">
+                            {topic.sentiment.toFixed(2)}
+                          </span>
+                        </div>
+                        {isSelected && (
+                          <span className="absolute -inset-1.5 rounded-full border border-[#D8454C] animate-ping opacity-60 pointer-events-none" />
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
 
           {/* Bottom Live Sentiment Strip — Infinite scroll CSS marquee with framer-motion */}
@@ -887,7 +1104,6 @@ export default function MinisterDashboard() {
               transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
               style={{ width: '200%' }}
             >
-              {/* Duplicate list to enable seamless infinite wrap */}
               {[...TICKER_ITEMS, ...TICKER_ITEMS].map((tk, idx) => (
                 <span className="text-[10px] text-[#6A7686] flex items-center gap-1 font-mono uppercase" key={`${tk.id}-${idx}`}>
                   <span className="text-[#D8454C] font-black">⟶</span>

@@ -16,6 +16,7 @@ import MinisterDashboard from './pages/MinisterDashboard';
 import SentimentConsole from './pages/SentimentConsole';
 import SentimentTopicDetail from './pages/SentimentTopicDetail';
 import RegulatoryEffectiveness from './pages/RegulatoryEffectiveness';
+import ConsumptionStructure from './pages/ConsumptionStructure';
 
 export default function App() {
   return (
@@ -51,6 +52,10 @@ export default function App() {
             <Route path="closure">
               <Route path="effectiveness" element={<RegulatoryEffectiveness />} />
               <Route path="effectiveness/:entityId" element={<RegulatoryEffectiveness />} />
+            </Route>
+
+            <Route path="consumption">
+              <Route path="structure" element={<ConsumptionStructure />} />
             </Route>
 
             <Route path="attribution">

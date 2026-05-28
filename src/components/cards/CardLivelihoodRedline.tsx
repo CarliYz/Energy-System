@@ -27,7 +27,17 @@ const HISTORICAL_TIMELINE = [
 
 export default function CardLivelihoodRedline() {
   const { language } = useLanguage();
-  const t = (en: string, zh: string) => (language === 'zh' ? zh : en);
+  const t = (arg1: string, arg2?: string) => {
+    if (!arg2) return arg1;
+    const hasChinese = (s: string) => /[\u4E00-\u9FFF]/.test(s);
+    if (hasChinese(arg1) && !hasChinese(arg2)) {
+      return language === 'zh' ? arg1 : arg2;
+    }
+    if (hasChinese(arg2) && !hasChinese(arg1)) {
+      return language === 'zh' ? arg2 : arg1;
+    }
+    return language === 'zh' ? arg2 : arg1;
+  };
 
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
 
@@ -79,9 +89,9 @@ export default function CardLivelihoodRedline() {
         
         {hoveredBar === bar.label_en && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-[#0F1722] text-white p-2.5 rounded shadow-lg z-50 text-[8.5px] font-mono leading-relaxed pointer-events-none select-text">
-            <div>30D Average Trend Baseline Rate: 97.4% ({bar.unit})</div>
-            <div>Alert triggers dynamically on crossing threshold val: {bar.redline}{bar.unit}</div>
-            <div>Current regulatory classification status: {bar.status}</div>
+            <div>{t('30D Average Trend Baseline Rate', '30天平准均值基线偏差率')}: 97.4% ({bar.unit})</div>
+            <div>{t('Alert triggers dynamically on crossing threshold val', '越过以下物理阈值将动态触发全网警戒')}: {bar.redline}{bar.unit}</div>
+            <div>{t('Current regulatory classification status', '当前监测及监管等级')}: {bar.status}</div>
           </div>
         )}
       </div>
@@ -129,8 +139,8 @@ export default function CardLivelihoodRedline() {
               {t('Household Gas Pressure Index has slipped BELOW safety margins in Aktau microgrid for 14 hours.', '阿克套物理网天然气主输送压力连续14小时越过民生保障低限。')}
             </p>
             <div className="border-t border-slate-150 my-1 pt-1 text-[8.5px] text-[#6A7686] leading-relaxed">
-              <strong>Parallel actions triggered:</strong> <br />
-              <span className="text-[#2D6CDF]">[ Pricing / 物价调节管辖 ]</span> <span className="text-[#B23A6A]">[ Safety / 应急联合防务 ]</span>
+              <strong>{t('Parallel actions triggered:', '已同步触发多部委联合响应:')}</strong> <br />
+              <span className="text-[#2D6CDF]">{t('[ Pricing Regulation ]', '[ 物价调节管辖 ]')}</span> <span className="text-[#B23A6A]">{t('[ Joint Emergency Defense ]', '[ 应急联合防务 ]')}</span>
             </div>
           </div>
 

@@ -135,8 +135,16 @@ export default function NationalGrid() {
   const [geoData, setGeoData] = useState<any>(null);
   const [transitioning, setTransitioning] = useState(false);
   
-  const tLabel = (en: string, zh: string) => {
-    return language === 'zh' ? zh : en;
+  const tLabel = (arg1: string, arg2?: string) => {
+    if (!arg2) return arg1;
+    const hasChinese = (s: string) => /[\u4E00-\u9FFF]/.test(s);
+    if (hasChinese(arg1) && !hasChinese(arg2)) {
+      return language === 'zh' ? arg1 : arg2;
+    }
+    if (hasChinese(arg2) && !hasChinese(arg1)) {
+      return language === 'zh' ? arg2 : arg1;
+    }
+    return language === 'zh' ? arg2 : arg1;
   };
 
   useEffect(() => {

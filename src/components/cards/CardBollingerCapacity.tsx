@@ -5,7 +5,17 @@ import { TrendingUp } from 'lucide-react';
 
 export default function CardBollingerCapacity() {
   const { language } = useLanguage();
-  const t = (en: string, zh: string) => (language === 'zh' ? zh : en);
+  const t = (arg1: string, arg2?: string) => {
+    if (!arg2) return arg1;
+    const hasChinese = (s: string) => /[\u4E00-\u9FFF]/.test(s);
+    if (hasChinese(arg1) && !hasChinese(arg2)) {
+      return language === 'zh' ? arg1 : arg2;
+    }
+    if (hasChinese(arg2) && !hasChinese(arg1)) {
+      return language === 'zh' ? arg2 : arg1;
+    }
+    return language === 'zh' ? arg2 : arg1;
+  };
 
   // Card internal states
   const [activeHypothesisFilter, setActiveHypothesisFilter] = useState<'Strike' | 'AgingEquipment' | 'PipelineMaintenance' | 'Weather' | 'OilfieldRepair' | null>(null);

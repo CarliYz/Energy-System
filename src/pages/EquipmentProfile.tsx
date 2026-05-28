@@ -39,6 +39,74 @@ const styles = `
 }
 `;
 
+interface ScadaImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  localPath: string;
+}
+
+const getInitialScadaSrc = (localPath: string) => {
+  const configuredBase = typeof window !== 'undefined' ? localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE') : null;
+  const primaryBase = configuredBase || 'https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public';
+  const cleanPath = localPath.startsWith('/') ? localPath : '/' + localPath;
+  return `${primaryBase.endsWith('/') ? primaryBase.slice(0, -1) : primaryBase}${cleanPath}`;
+};
+
+const ScadaImage: React.FC<ScadaImageProps> = ({ localPath, className, style, alt, ...props }) => {
+  const [src, setSrc] = useState<string | null>(() => getInitialScadaSrc(localPath));
+  const [triedSources, setTriedSources] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  useEffect(() => {
+    const configuredBase = localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE');
+    const primaryBase = configuredBase || 'https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public';
+    const cleanPath = localPath.startsWith('/') ? localPath : '/' + localPath;
+
+    const sourcesToTry: string[] = [];
+    
+    // 1st: Primary base + path
+    sourcesToTry.push(`${primaryBase.endsWith('/') ? primaryBase.slice(0, -1) : primaryBase}${cleanPath}`);
+    
+    // 2nd: Uppercase variant if different
+    const upperBase = 'https://raw.githubusercontent.com/karlee01/AI-STATECRAFT/main/public';
+    if (primaryBase !== upperBase) {
+      sourcesToTry.push(`${upperBase}${cleanPath}`);
+    }
+    
+    // 3rd: Local public path
+    sourcesToTry.push(cleanPath);
+
+    setTriedSources(sourcesToTry);
+    setSrc(sourcesToTry[0]);
+    setCurrentIndex(0);
+  }, [localPath]);
+
+  const handleError = () => {
+    if (currentIndex + 1 < triedSources.length) {
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setSrc(triedSources[nextIndex]);
+    } else {
+      // Final fallback to high-tech SVG line art placeholder
+      setSrc(`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="100%" height="100%" fill="%231E293B"/><circle cx="200" cy="130" r="40" stroke="%2338BDF8" stroke-width="2" fill="none" stroke-dasharray="5,5"/><path d="M150 210 L250 210 M170 230 L230 230" stroke="%2338BDF8" stroke-width="2"/><text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" fill="%2394A3B8" font-family="monospace" font-size="11">PORT SCAN ACTIVE • OFFLINE BACKUP</text></svg>`);
+    }
+  };
+
+  if (!src) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      onError={handleError}
+      className={className}
+      style={style}
+      alt={alt}
+      referrerPolicy="no-referrer"
+      {...props}
+    />
+  );
+};
+
 // Types
 type Level = 'L1' | 'L2' | 'L3';
 type AssetCode = 'EQ-01' | 'EQ-02' | 'EQ-03' | 'EQ-04' | 'EQ-05' | 'EQ-06' | 'EQ-07' | 'EQ-08';
@@ -78,7 +146,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'GE Oil & Gas (Baker Hughes)',
     vendor_zh: '通用电气油气板块（贝克休斯）',
     model: 'ICL-2BCL608/A',
-    thumbnailUrl: '/assets/scada/eq01_ge_icl_compressor.jpg'
+    thumbnailUrl: '/assets/scada/eq01_ge_icl_compressor.png'
   },
   {
     code: 'EQ-02',
@@ -95,7 +163,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Siemens Energy',
     vendor_zh: '西门子能源系统部',
     model: 'GEAFOL 25MVA / 110-6.6kV',
-    thumbnailUrl: '/assets/scada/eq02_substation_transformer.jpg'
+    thumbnailUrl: '/assets/scada/eq02_substation_transformer.png'
   },
   {
     code: 'EQ-03',
@@ -112,7 +180,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'ABB',
     vendor_zh: '阿西亚·布朗·勃法里股份公司',
     model: 'ACS6080 / 18MW',
-    thumbnailUrl: '/assets/scada/eq03_vfd_drive.jpg'
+    thumbnailUrl: '/assets/scada/eq03_vfd_drive.png'
   },
   {
     code: 'EQ-04',
@@ -129,7 +197,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Cameron (Schlumberger)',
     vendor_zh: '卡麦龙重工（斯伦贝谢）',
     model: 'LOS-450',
-    thumbnailUrl: '/assets/scada/eq04_lube_oil_system.jpg'
+    thumbnailUrl: '/assets/scada/eq04_lube_oil_system.png'
   },
   {
     code: 'EQ-05',
@@ -146,7 +214,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'SPX Cooling',
     vendor_zh: '斯必克闭式物理冷却技术事业部',
     model: 'MARLEY-FX-6',
-    thumbnailUrl: '/assets/scada/eq05_water_cooler.jpg'
+    thumbnailUrl: '/assets/scada/eq05_water_cooler.png'
   },
   {
     code: 'EQ-06',
@@ -163,7 +231,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Alfa Laval',
     vendor_zh: '阿法拉伐精密板式换热工程',
     model: 'ACE-180',
-    thumbnailUrl: '/assets/scada/eq06_oil_cooler.jpg'
+    thumbnailUrl: '/assets/scada/eq06_oil_cooler.png'
   },
   {
     code: 'EQ-07',
@@ -180,7 +248,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Vallourec',
     vendor_zh: '法国瓦卢瑞克重壁无缝特种钢轨',
     model: 'API-5L X65 / DN500',
-    thumbnailUrl: '/assets/scada/eq07_connecting_piping.jpg'
+    thumbnailUrl: '/assets/scada/eq07_connecting_piping.png'
   },
   {
     code: 'EQ-08',
@@ -197,7 +265,7 @@ const ASSET_CATALOG: Asset[] = [
     vendor: 'Emerson',
     vendor_zh: '艾默生自动化系统工程部',
     model: 'DeltaV SX',
-    thumbnailUrl: '/assets/scada/eq08_control_panel.jpg'
+    thumbnailUrl: '/assets/scada/eq08_control_panel.png'
   }
 ];
 
@@ -555,7 +623,7 @@ export default function EquipmentProfile() {
 
   // Configurable base URL for custom GitHub Raw Assets mapping
   const [assetBaseUrl, setAssetBaseUrl] = useState<string>(() => {
-    return localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE') || '';
+    return localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE') || 'https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public';
   });
   const [showConfigPanel, setShowConfigPanel] = useState<boolean>(false);
   const [tempBaseUrl, setTempBaseUrl] = useState<string>(assetBaseUrl);
@@ -658,8 +726,16 @@ export default function EquipmentProfile() {
   const selectedPart = activeHotspots.find(h => h.id === selectedPartId) || activeHotspots[0];
 
   // Language helper translations
-  const tLabel = (zh: string, en: string) => {
-    return language === 'zh' ? zh : en;
+  const tLabel = (arg1: string, arg2?: string) => {
+    if (!arg2) return arg1;
+    const hasChinese = (s: string) => /[\u4E00-\u9FFF]/.test(s);
+    if (hasChinese(arg1) && !hasChinese(arg2)) {
+      return language === 'zh' ? arg1 : arg2;
+    }
+    if (hasChinese(arg2) && !hasChinese(arg1)) {
+      return language === 'zh' ? arg2 : arg1;
+    }
+    return language === 'zh' ? arg2 : arg1;
   };
 
   return (
@@ -852,10 +928,9 @@ export default function EquipmentProfile() {
                       {/* Image Thumbnail inside dot grid */}
                       <div className="3d-hover-card flex-1 h-[172px] bg-[#EEF2F8] rounded-[6px] relative overflow-hidden flex items-center justify-center p-4" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1.5px, transparent 1.5px)', backgroundSize: '10px 10px' }}>
                         <div className="3d-hover-card-inner flex items-center justify-center w-full h-full">
-                          <img 
-                            src={asset.thumbnailUrl} 
+                          <ScadaImage 
+                            localPath={asset.thumbnailUrl} 
                             alt={asset.name} 
-                            referrerPolicy="no-referrer"
                             className="max-w-full max-h-full object-contain filter drop-shadow-[0_8px_16px_rgba(15,23,34,0.15)] transition-all"
                           />
                         </div>
@@ -948,11 +1023,10 @@ export default function EquipmentProfile() {
                 <div className="flex-1 bg-[#F8FAFC] rounded-[8px] relative overflow-hidden border border-slate-200 flex items-center justify-center">
                   
                   {/* Web Image Container */}
-                  <img 
-                    src={getFinalAssetUrl('/assets/scada/station_overview_isometric.jpg')} 
+                  <ScadaImage 
+                    localPath="/assets/scada/station_overview_isometric.png" 
                     alt="Caspian Energy Compressor Station Layout" 
                     className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
                   />
 
                   {/* Faint dotted grid overlay */}
@@ -1138,11 +1212,10 @@ export default function EquipmentProfile() {
 
                     {/* Image Area */}
                     <div className="h-[180px] bg-[#11141B] rounded-[6px] border border-white/5 relative flex items-center justify-center p-3 overflow-hidden">
-                      <img 
-                        src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
+                      <ScadaImage 
+                        localPath={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} Active Real View`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)] transition-transform duration-500"
-                        referrerPolicy="no-referrer"
                         style={{ transform: `rotate(${viewAngle}deg)` }}
                       />
                       {/* Sub shadow ellipse asset design */}
@@ -1159,11 +1232,10 @@ export default function EquipmentProfile() {
                           onClick={() => setFullscreenPhoto(false)}
                           className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center cursor-zoom-out p-12"
                         >
-                          <img 
-                            src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
+                          <ScadaImage 
+                            localPath={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                             alt={`${selectedAsset.name} Full View`} 
                             className="max-h-full max-w-full object-contain"
-                            referrerPolicy="no-referrer"
                           />
                           <span className="absolute bottom-6 text-[#A8B4C4] font-mono text-[10px] uppercase text-center w-full">
                             {tLabel('微击任意空白处退回 standard 面板', 'Click anywhere to return to profile dashboard')}
@@ -1186,11 +1258,10 @@ export default function EquipmentProfile() {
 
                     {/* Schematic Image with interactive hotspots */}
                     <div className="h-[210px] bg-[#EEF2F8] rounded-[6px] border border-[#E2E7EF] relative flex items-center justify-center overflow-hidden p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
-                      <img 
-                        src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
+                      <ScadaImage 
+                        localPath={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                         alt={`${selectedAsset.name} SCADA Diagram`} 
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)] pointer-events-none select-none"
-                        referrerPolicy="no-referrer"
                       />
 
                       {/* Hotspots layer of Cutaway */}
@@ -1351,11 +1422,10 @@ export default function EquipmentProfile() {
 
                 {/* Show cutaway or profile image with the selected hotspot active */}
                 <div className="flex-1 bg-[#EEF2F8]/70 rounded-[8px] border border-[#E2E7EF] relative flex items-center justify-center p-6" style={{ backgroundImage: 'radial-gradient(#C5CCD9 1.4px, transparent 1.4px)', backgroundSize: '12px 12px' }}>
-                  <img 
-                    src={getFinalAssetUrl(selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.jpg' : selectedAsset.thumbnailUrl)} 
+                  <ScadaImage 
+                    localPath={selectedAssetCode === 'EQ-01' ? '/assets/scada/eq01_ge_icl_compressor.png' : selectedAsset.thumbnailUrl} 
                     alt="SCADA context diagram" 
                     className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] opacity-40 select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
                   />
 
                   {/* Red dashed pulsing circle on the active part */}
@@ -1722,8 +1792,8 @@ export default function EquipmentProfile() {
                   {tLabel('实时资产地址映射解析预览 : ', 'Resolved Path Mapping Preview:')}
                   <div className="mt-1 bg-slate-100 p-2 rounded text-[9px] font-mono break-all text-slate-600 leading-normal border border-slate-200">
                     {tempBaseUrl 
-                      ? `${tempBaseUrl.endsWith('/') ? tempBaseUrl.slice(0, -1) : tempBaseUrl}/assets/scada/station_overview_isometric.jpg`
-                      : '/assets/scada/station_overview_isometric.jpg'
+                      ? `${tempBaseUrl.endsWith('/') ? tempBaseUrl.slice(0, -1) : tempBaseUrl}/assets/scada/station_overview_isometric.png`
+                      : '/assets/scada/station_overview_isometric.png'
                     }
                   </div>
                 </div>

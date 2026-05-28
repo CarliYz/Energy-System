@@ -1,344 +1,212 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, FileText, Zap, AlertTriangle, ShieldCheck, CheckCircle2, ChevronRight,
-  TrendingDown, Globe, Layers, Settings, Database, Server
-} from 'lucide-react';
+import { ArrowLeft, AlertTriangle, ShieldAlert, Activity, ChevronRight } from 'lucide-react';
+import { motion } from 'motion/react';
 import { cn } from '@/src/lib/utils';
 import { useLanguage } from '../components/LanguageContext';
 
-export default function EnterpriseReporting() {
-  const { language } = useLanguage();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'simulation'>('overview');
+const METRICS = [
+  { key: 'phys_generation', label_en: 'Physics Theoretical Output', label_zh: '物理理论发电量',
+    declared: '102 MW', actual: '102 MW', deviation: 0, status: 'green', timeline: 'all-green' },
+  { key: 'gas_consumption', label_en: 'Gas Consumption',           label_zh: '天然气消耗量',
+    declared: '111 MMCM', actual: '95 MMCM', deviation: -13.5, status: 'amber', timeline: 'mostly-amber' },
+  { key: 'emissions',     label_en: 'Emissions Declared',         label_zh: '碳排放申报量',
+    declared: '115 T', actual: '92 T', deviation: -20.0, status: 'red', timeline: 'red-spikes' },
+  { key: 'scada',         label_en: 'SCADA Measured Output',      label_zh: 'SCADA 测定发电量',
+    declared: '102 MW', actual: '118 MW', deviation: 15.7, status: 'red', timeline: 'red-spikes' },
+  { key: 'grid',          label_en: 'Grid Receive Quantity',      label_zh: '电网消纳指令量',
+    declared: '103 MW', actual: '121 MW', deviation: 17.5, status: 'red', timeline: 'red-spikes' },
+  { key: 'tax',           label_en: 'Tax Settlement Volume',      label_zh: '财务结算发票量',
+    declared: '104 BN', actual: '126 BN', deviation: 21.2, status: 'red', timeline: 'red-spikes' },
+];
 
-  const tLabel = (en: string, zh: string) => {
-    return language === 'zh' ? zh : en;
+const MONTHS = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'];
+
+export default function EnterpriseReporting() {
+  const navigate = useNavigate();
+  const { language } = useLanguage();
+  const tLabel = (en: string, zh: string) => (language === 'zh' ? zh : en);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 600);
+    return () => clearInterval(id);
+  }, []);
+
+  const dotColor = (metric: typeof METRICS[0], monthIdx: number) => {
+    if (metric.timeline === 'all-green') return '#2FA862';
+    if (metric.timeline === 'mostly-amber') return monthIdx >= 6 ? '#E89518' : '#2FA862';
+    // red-spikes
+    if (monthIdx >= 9) return '#D8454C';
+    if (monthIdx >= 6) return '#E89518';
+    return '#2FA862';
   };
 
-  const MATRIX_ROWS = useMemo(() => [
-    { 
-      id: 'SYS-01', 
-      name_en: 'PHYSICAL GENERATION', 
-      name_zh: '物理理论发电量', 
-      eq: 'eq-01', 
-      expect: '102 MW', 
-      report: '102 MW', 
-      delta: '0.0%', 
-      sev: 0.1, 
-      status: 'OK',
-      trace: [1,1,1,1,1,1,1,1,1,1,1,1] 
-    },
-    { 
-      id: 'SYS-02', 
-      name_en: 'FUEL GAS FEEDSTOCK', 
-      name_zh: '天然气消耗量', 
-      eq: 'eq-02', 
-      expect: '111 MMcm', 
-      report: '96 MMcm', 
-      delta: '-13.5%', 
-      sev: 0.65, 
-      status: 'WARN',
-      trace: [1,1,2,1,2,2,3,2,2,1,2,3] 
-    },
-    { 
-      id: 'SYS-03', 
-      name_en: 'CARBON EMISSIONS', 
-      name_zh: '碳排放与排放计', 
-      eq: 'eq-03', 
-      expect: '115 T', 
-      report: '92 T', 
-      delta: '-20.0%', 
-      sev: 0.9, 
-      status: 'CRITICAL',
-      trace: [1,1,2,2,2,2,3,2,2,3,2,3] 
-    },
-    { 
-      id: 'SYS-04', 
-      name_en: 'SCADA COMFIRM MWh', 
-      name_zh: 'SCADA 测定发量', 
-      eq: 'eq-04', 
-      expect: '102 MW', 
-      report: '118 MW', 
-      delta: '+15.7%', 
-      sev: 0.72, 
-      status: 'WARN',
-      trace: [1,2,2,1,2,2,2,1,3,2,3,3] 
-    },
-    { 
-      id: 'SYS-05', 
-      name_en: 'GRID DISPATCH COMM', 
-      name_zh: '电网调度指令量', 
-      eq: 'eq-05', 
-      expect: '103 MW', 
-      report: '121 MW', 
-      delta: '+17.5%', 
-      sev: 0.78, 
-      status: 'WARN',
-      trace: [1,1,1,2,2,2,2,1,3,2,3,3] 
-    },
-    { 
-      id: 'SYS-06', 
-      name_en: 'TAX INVOICES REVENUE', 
-      name_zh: '财务结算发票量', 
-      eq: 'eq-06', 
-      expect: '104 BN', 
-      report: '126 BN', 
-      delta: '+21.2%', 
-      sev: 0.95, 
-      status: 'CRITICAL',
-      trace: [0,0,1,1,2,2,3,3,2,3,3,3] 
-    },
-  ], []);
-
   return (
-    <div className="flex-1 flex flex-col bg-[#F4F6FA] text-[#1A2330] font-sans overflow-hidden">
-      
-      {/* 1 · CONTEXT & HEADER CONTROL BAR */}
+    <div className="flex-1 flex flex-col bg-[#F4F6FA] overflow-hidden h-full">
+
+      {/* Top header */}
       <div className="h-14 border-b border-[#E2E7EF] bg-white flex items-center justify-between px-6 shrink-0 z-50 shadow-sm">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/minister/dashboard')}
-            className="flex items-center gap-1.5 text-[#6A7686] hover:text-[#0F1722] pr-3 border-r border-[#E2E7EF] text-[11px] font-bold"
-          >
-            <ArrowLeft size={13} />
-            <span>{tLabel('Minister Desk', '回到部长决策大屏')}</span>
+          <button onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-[#6A7686] hover:text-[#0F1722] pr-3 border-r border-[#E2E7EF] text-[11px] font-bold">
+            <ArrowLeft size={13} /> {tLabel('Back', '返回')}
           </button>
           <span className="text-[11.5px] font-black uppercase text-[#0F1722] tracking-wider">
-            {tLabel('ACT II-B · THE 6-PORT INTEGRITY & COHERENCY MAP', '第二幕乙 · 跨口径数据自洽核对与六方对等关系一致性验证')}
+            {tLabel('ACT II-B · 6-SYSTEM CROSS-RECONCILIATION MATRIX', '第二幕乙 · 跨口径数据自治核对与六方对等关系一致性验证')}
           </span>
         </div>
-
-        {/* Tab switcher */}
-        <div className="flex h-9 bg-slate-100 border border-border-default rounded p-0.5 select-none shrink-0 scale-95">
-          <button 
-            onClick={() => setActiveTab('overview')}
-            className={cn("px-4 py-1 text-[10.5px] font-black rounded uppercase transition-all", activeTab === 'overview' ? "bg-white text-[#2D6CDF] shadow" : "text-[#6A7686]")}
-          >
-            {tLabel('1. Cross-System Matrix', '1. 六向交叉对齐矩阵')}
-          </button>
-          <button 
-            onClick={() => setActiveTab('simulation')}
-            className={cn("px-4 py-1 text-[10.5px] font-black rounded uppercase transition-all", activeTab === 'simulation' ? "bg-white text-[#2D6CDF] shadow" : "text-[#6A7686]")}
-          >
-            {tLabel('2. Equation Identities', '2. 物理守恒等比校验')}
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 font-mono text-[10px] bg-slate-100 border px-3 py-1 rounded">
-          <span>{tLabel('Target Company:', '审计主体:')} <strong>ENT-KZ-AKT-0091</strong></span>
-        </div>
+        <span className="px-2 py-0.5 bg-[#D8454C] text-white text-[8px] font-bold rounded-sm uppercase font-mono">ENT-KZ-AKT-0091</span>
       </div>
 
-      {activeTab === 'overview' ? (
-        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 56px)' }}>
-          
-          {/* TOP 12-MONTH TRACE MATRIX TABLE */}
-          <div className="bg-white rounded-[6px] border border-[#E2E7EF] shadow-sm overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-[#E2E7EF] bg-slate-50/50 flex justify-between items-center text-[10.5px] font-black text-[#0F1722] uppercase tracking-wider select-none">
-              <span>{tLabel('12-Month Coherency Crosscheck Matrix', '6大核心系统12个月度物理电热热熵/能流一致性对齐矩阵')}</span>
-              <span className="text-[#6A7686] font-mono">SCADA · TAX METER · SO COMM</span>
-            </div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-[#E2E7EF] h-9 text-[9px] font-black uppercase text-[#6A7686] tracking-wider font-mono">
-                    <th className="px-5">{tLabel('Audit Segment Name', '校验申报系统级口径名称')}</th>
-                    <th className="px-3 text-center">{tLabel('Expected Limit', '物理自适应上限预期')}</th>
-                    <th className="px-3 text-center">{tLabel('Submitted Value', '企业实际上报表值')}</th>
-                    <th className="px-3 text-center">{tLabel('Delta Divergence', '跨多边偏离幅度')}</th>
-                    <th className="px-3 text-center">{tLabel('Severity Weight', '物理断裂严重等级')}</th>
-                    <th className="px-4 text-center">{tLabel('12-Month Micro Trace', '过去12周期滚动波动形态')}</th>
-                    <th className="px-5 text-right">{tLabel('Routing Directive', '合规判定走向指令')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MATRIX_ROWS.map((row, idx) => {
-                    const isCrit = row.status === 'CRITICAL';
-                    const isWarn = row.status === 'WARN';
+        {/* === MAIN MATRIX · 6 systems × 12 months with pulsing dots === */}
+        <div className="bg-white border border-[#E2E7EF] rounded-[6px] p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-[12.5px] font-black text-[#0F1722] uppercase tracking-wider">
+              <Activity className="inline w-3.5 h-3.5 mr-1 text-[#D8454C]" />
+              {tLabel('6 Core Systems × 12-Month Reconciliation Matrix',
+                      '6 大核心系统 12 个月度发电对齐一致性审计对齐矩阵')}
+            </h3>
+            <span className="text-[9px] font-mono text-[#A8B2C0] font-black">SCADA · TAX · METER · GRID · GAS · EMIS</span>
+          </div>
+
+          {/* table head */}
+          <div className="grid grid-cols-[180px_110px_110px_60px_120px_1fr_130px] gap-2 p-2 bg-slate-50 rounded text-[8.5px] font-black uppercase text-[#64748B] font-mono tracking-wider">
+            <span>{tLabel('Indicator', '核报项目')}</span>
+            <span>{tLabel('Declared Expect', '物理自适应预期')}</span>
+            <span>{tLabel('Actual Reported', '企业上报实际值')}</span>
+            <span className="text-center">{tLabel('Δ%', '偏差')}</span>
+            <span>{tLabel('Physics Compliance', '物理合规产能图')}</span>
+            <span className="text-center">{tLabel('Past 12 Months Trend (animated)', '过去 12 月偏离波动趋势')}</span>
+            <span className="text-right">{tLabel('Verdict', '合规判定结论')}</span>
+          </div>
+
+          {/* rows */}
+          <div className="divide-y divide-slate-100">
+            {METRICS.map((m, mi) => (
+              <div key={m.key} className="grid grid-cols-[180px_110px_110px_60px_120px_1fr_130px] gap-2 px-2 py-3 items-center hover:bg-slate-50 transition-colors duration-150">
+                <span className="text-[11.5px] font-black text-[#0F1722]">{tLabel(m.label_en, m.label_zh)}</span>
+                <span className="text-[11px] font-mono text-[#475569]">{m.declared}</span>
+                <span className="text-[11px] font-mono text-[#0F1722] font-semibold">{m.actual}</span>
+                <span className={cn("text-[10.5px] font-mono font-black text-center",
+                  m.status === 'red' ? 'text-[#D8454C]' : m.status === 'amber' ? 'text-[#E89518]' : 'text-[#2FA862]')}>
+                  {m.deviation > 0 ? '+' : ''}{m.deviation}%
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("w-10 h-1 rounded-full",
+                    m.status === 'red' ? 'bg-[#D8454C]' : m.status === 'amber' ? 'bg-[#E89518]' : 'bg-[#2FA862]')} />
+                  <div className="flex gap-0.5">
+                    <div className={cn("w-2 h-2 rounded-full", m.status === 'red' ? 'bg-[#D8454C]' : 'bg-slate-200')} />
+                    <div className={cn("w-2 h-2 rounded-full", m.status === 'red' || m.status === 'amber' ? 'bg-[#E89518]' : 'bg-slate-200')} />
+                  </div>
+                </div>
+                
+                {/* 12-month pulse track */}
+                <div className="flex items-center gap-1.5 justify-center px-1">
+                  {MONTHS.map((_, i) => {
+                    const c = dotColor(m, i);
+                    const isRedDot = c === '#D8454C';
+                    const isAmberDot = c === '#E89518';
+                    const isPulse = (isRedDot && (i + tick) % 2 === 0) || (isAmberDot && (i + tick) % 4 === 0);
                     return (
-                      <tr key={idx} className="border-b border-slate-100 h-14 hover:bg-slate-50 transition-colors uppercase text-[11px]">
-                        <td className="px-5">
-                          <div className="font-extrabold text-[#0F1722] leading-tight text-[12px]">{language === 'zh' ? row.name_zh : row.name_en}</div>
-                          <div className="text-[9px] text-[#A8B2C0] font-mono font-medium mt-0.5">{row.id} · {row.eq}</div>
-                        </td>
-                        <td className="px-3 text-center font-semibold font-mono text-[#0F1722]">{row.expect}</td>
-                        <td className="px-3 text-center font-black font-mono text-[#0F1722]">{row.report}</td>
-                        <td className="px-3 text-center">
-                          <span className={cn(
-                            "px-2 py-0.5 rounded-[2px] font-mono font-black border text-[10px]",
-                            isCrit ? 'bg-[#D8454C]/10 text-[#D8454C] border-[#D8454C]/20 animate-pulse' :
-                            isWarn ? 'bg-[#E89518]/10 text-[#E89518] border-[#E89518]/20' : 'bg-[#2FA862]/10 text-[#2FA862] border-[#2FA862]/20'
-                          )}>
-                            {row.delta}
-                          </span>
-                        </td>
-                        <td className="px-3">
-                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden mx-auto">
-                            <div className="h-full rounded-full" style={{ 
-                              width: `${row.sev * 100}%`, 
-                              backgroundColor: isCrit ? '#D8454C' : isWarn ? '#E89518' : '#2FA862' 
-                            }} />
-                          </div>
-                        </td>
-                        <td className="px-4">
-                          <div className="flex gap-1 justify-center items-center">
-                            {row.trace.map((item, tid) => (
-                              <span 
-                                key={tid} 
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  item === 3 ? 'bg-[#D8454C] animate-ping' : item === 2 ? 'bg-[#E89518]' : 'bg-[#2FA862]'
-                                }`} 
-                              />
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-5 text-right font-mono font-bold">
-                          <span className={isCrit ? 'text-[#D8454C]' : isWarn ? 'text-[#E89518]' : 'text-[#2FA862]'}>
-                            {isCrit ? tLabel('ESCALATE DETECTED', '一键极速建档') : isWarn ? tLabel('VERIFY ANOMALY', '待证核实') : tLabel('OK NOMINAL', '正常放行')}
-                          </span>
-                        </td>
-                      </tr>
+                      <div key={i} className="flex flex-col items-center group relative cursor-help">
+                        {/* Dot */}
+                        <div className={cn("w-2.5 h-2.5 rounded-full transition-all duration-300", isPulse ? 'scale-110 shadow-md' : 'opacity-85')}
+                             style={{ 
+                               background: c, 
+                               boxShadow: isPulse ? `0 0 6px ${c}` : 'none' 
+                             }} />
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                </div>
 
-          {/* TWO BOTTOM CARDS: THE CASE ANALYST COLUMN AND INSIGHTS CARDS */}
-          <div className="grid grid-cols-12 gap-6">
-            
-            <div className="col-span-4 bg-white rounded-[6px] border border-[#E2E7EF] p-5 shadow-sm">
-              <span className="text-[10px] font-black uppercase text-[#6A7686] font-mono block mb-2">{tLabel('COMPLIANCE CONTEXT', '国家局审计合规条目依据')}</span>
-              <h4 className="text-[13px] font-black text-[#0F1722] uppercase tracking-wider">{tLabel('Title III Energy Security Disclosure Act', '国家安全保供能流穿透强制披露法案依据')}</h4>
-              
-              <p className="text-[#6A7686] text-[11px] mt-2.5 leading-relaxed">
-                {tLabel(
-                  'According to Chapter 14 Section A, any active generation facility exceeding nominal permitted power output by more than 10% for consecutive 48H must trigger physical inspection. Covert capacity bypasses taxation protocols and compromises local grid frequency.',
-                  '根据哈萨克斯坦国家保供及能流安全规约第14章甲段规定，任何并网运行之火力、燃气、核电等机组，若连续48H其SCADA回馈物理流过载名义准许限值10%以上，视为特大越产偏离，直属中央国家督办范畴。'
-                )}
+                <span className={cn("text-[9px] font-black text-right tracking-wider uppercase font-mono px-1 py-0.5 rounded-sm inline-block",
+                  m.status === 'red' ? 'text-[#D8454C]' : m.status === 'amber' ? 'text-[#E89518]' : 'text-[#2FA862]')}>
+                  {m.status === 'red' ? tLabel('💥 SEVERE BREACH', '💥 一级红区越线') :
+                   m.status === 'amber' ? tLabel('▲ SLIGHT DEVIATION', '▲ 轻度偏差') :
+                                          tLabel('✓ OK NOMINAL', '✓ 正常放行')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* === BOTTOM 2-column · 合规依据 + 四方指纹 === */}
+        <div className="grid grid-cols-2 gap-5">
+          {/* Audit basis (left) — 含融合后的"国家审计局合规条目依据"作为 footer */}
+          <div className="bg-white border border-[#E2E7EF] rounded-[6px] p-5 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 className="text-[12px] font-black text-[#0F1722] uppercase tracking-wider mb-2">
+                {tLabel('Audit Basis · Title III Energy Security Act',
+                        '国家安全保供能流穿透强制披露法律监察依据')}
+              </h4>
+              <p className="text-[10.5px] text-[#6A7686] leading-relaxed mb-4">
+                {tLabel('Per Title III §4.6 and §5.1, SCADA, dispatch, emissions, tax and grid records must reconcile within ±5%. Exceedances above 10% mandate full audit and asset freeze.',
+                        '依据国家能源安全保供透传强制披露法案第 III 章第 4.6 和 5.1 节，任何并网能源机构其 SCADA 实测流、燃料消耗、财务完税发票流之间核算偏差超过 10% 即构成合规异常，依规需启动穿透对账、并冻结相关非法获利或机组。')}
               </p>
-
-              <div className="h-[1px] bg-[#E2E7EF] my-4" />
               
-              <button 
-                onClick={() => navigate('/audit/report')}
-                className="w-full h-10 bg-[#D8454C] hover:bg-red-700 text-white font-black uppercase text-[11px] tracking-wider rounded-[3px] transition-colors"
-              >
-                {tLabel('⚠ Draft Enforcement Directive Document', '⚠ 调阅并生成行政督导派单书')}
-              </button>
-            </div>
-
-            <div className="col-span-8 bg-white rounded-[6px] border border-[#E2E7EF] p-5 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-[#6A7686] font-mono block mb-2">{tLabel('ANALYST SUMMARY REASONING', '物理性质自洽校验审计定论')}</span>
-                <h4 className="text-[14px] font-black text-[#0F1722]">{tLabel('Multivariable Triangulation confirmed Overproduction Fingerprint', '四方自组织联合演算锁定未申报发电机组指纹')}</h4>
-                
-                <div className="grid grid-cols-3 gap-4 mt-4 text-[11px] leading-relaxed">
-                  <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-extrabold text-[#D8454C] uppercase text-[9.5px]">A. CARBON SHIELD BYPASS</span>
-                    <p className="text-[#6A7686] text-[10px] mt-1.5">
-                      {tLabel('Emissions disclosed are 20% lower than expectations from power output limits. Carbon scrubbing factor is abnormal.', '虚假申报碳排放，以瞒报燃料配额。1-4号热力段回馈温差表明烟道过温，实际排放远超环保申报。')}
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-extrabold text-[#E89518] uppercase text-[9.5px]">B. ELECTRICAL ACTIVE HIGH</span>
-                    <p className="text-[#6A7686] text-[10px] mt-1.5">
-                      {tLabel('SCADA logs show +15.7% active power flow consistently. Invoices with grid buyers match this high active flow.', '省局电费交易账目与电网上网SCADA测点完美一致，证实漏失用能已被就地套现，排除单纯仪表故障。')}
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-extrabold text-[#2D6CDF] uppercase text-[9.5px]">C. DECOUPLED MASS RATIO</span>
-                    <p className="text-[#6A7686] text-[10px] mt-1.5">
-                      {tLabel('Combined Heat-Rate vs carbon output math fails physical identities. Model shows P=0.87 covert unit.', '能量守恒不等式最终断裂（P=0.87）。极高概率该设施于2025Q4违背法律擅自外嵌未经扩申登记的辅发电机。')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-[10px] text-[#A8B2C0] font-mono border-t border-[#E2E7EF] pt-3 text-right">
-                {tLabel('Audit System model: CORRELATION-ENT-V2.3 · Generated automatically via TimeGPT on 2026-05-28', '多边联合审计模型版本：CORRELATION-ENT-V2.3 · 2026-05-28 由中央智算引擎自动运算归集')}
+              {/* footer: 国家审计局合规条目依据 */}
+              <div className="bg-slate-50 border-l-2 border-[#2D6CDF] rounded px-3 py-2.5 mb-4 shadow-inner">
+                <div className="text-[8.5px] font-black uppercase text-[#A8B2C0] font-mono mb-1.5">{tLabel('Audit Bureau Compliance Reference', '中央审计局能耗穿透规范法规条文依据')}</div>
+                <ul className="text-[9.5px] text-[#475569] space-y-1 list-disc list-inside font-mono">
+                  <li>{tLabel('Audit Code §AK-2024-117 · cross-system reconciliation mandate', '审计行政条令 §AK-2024-117 · 跨部门多头对账条款')}</li>
+                  <li>{tLabel('Energy Reporting Regulation §C-12 · monthly grid alignment', '能源报送规范细则 §C-12 · 电网月度物理自校正')}</li>
+                  <li>{tLabel('Tax Act §VAT-3.2 · invoice physical alignment protocols', '发税连证条例 §VAT-3.2 · 增值税发票实体穿透防漏跑账')}</li>
+                </ul>
               </div>
             </div>
 
+            <button onClick={() => navigate('/audit/event/CASE-2026-001')}
+              className="w-full py-2.5 bg-[#D8454C] hover:bg-red-700 text-white font-black text-[11px] uppercase tracking-wider rounded shadow transition duration-150">
+              ⚡ {tLabel('Generate Administrative Dispatch Order',
+                        '调阅并生成行政督办备案令')}
+            </button>
           </div>
 
-        </div>
-      ) : (
-        /* TAB 2 EQUATIONS VERDICT GRAPH */
-        <div className="flex-1 p-6 flex flex-col justify-between overflow-y-auto">
-          <div className="bg-white rounded-[6px] border border-[#E2E7EF] p-5 shadow-sm flex-1 flex flex-col select-none">
-            <h3 className="text-[14px] font-black text-[#0F1722] mb-1.5 uppercase">
-              {tLabel('ACT II-C · 7 CORE PHYSICAL ENERGY IDENTITY EQUATIONS', '守恒极点 · 物理守恒等式检验（7 CORE PHYSICAL ENERGY IDENTITIES）')}
-            </h3>
-
-            <div className="space-y-4 max-w-4xl mt-4">
-              {[
-                { eq: 'E1: Σ(gas in) × Thermal Efficiency η = Power MWh generation output', desc_en: 'Energy Input conservation check. Current status: Fails by -13.5% (Fuel too low for generated output).', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-                { eq: 'E2: Active Power × Carbon Emission Factor = Volumetric CO₂ concentration', desc_en: 'Eco-environment cross-checking. Current status: Fails by -20.0% (Mismatched emissions reported to environmental protection department).', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-                { eq: 'E3: Declared permit maximum capacity ≥ Actual rolling peak active flow', desc_en: 'Regulatory constraint threshold parity. Current status: Fails by 3.2 MW overrun at peak load period.', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-                { eq: 'E4: Active Grid Billing MWh ⟷ KEGOC actual physical metering output', desc_en: 'Financial settlement parity log. Current status: Consistent & verified (reconciliation matches financial accounts).', status: 'OK', color: 'border-l-[#2FA862] bg-[#2FA862]/5 text-[#2FA862]' },
-                { eq: 'E5: National enterprise registry permit status = Active operation licence', desc_en: 'Permit alignment. Current status: Overrun detected (Installed bypass is completely unlicensed for active billing).', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-                { eq: 'E6: Fuel heat-rate output margin within ±5% of regional peers average', desc_en: 'Peer envelope baseline comparison. Current status: Fails by +9.4% excessive heat loss at fuel-compressor interface.', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-                { eq: 'E7: Storage inventory change rate = Upstream velocity delta Δ', desc_en: 'Flow mass conservation. Current status: Volumetric inconsistency detected at GCS-001.', status: 'CRITICAL', color: 'border-l-[#D8454C] bg-[#D8454C]/5 text-[#D8454C]' },
-              ].map((item, id) => (
-                <div key={id} className={cn("p-4 border-l-4 rounded shadow-sm text-[12.5px] font-mono", item.color)}>
-                  <span className="font-extrabold block text-[13.5px]">{item.eq}</span>
-                  <p className="text-slate-600 font-sans text-[11.5px] mt-1">{language === 'zh' ? '在设物理守恒方程式对齐校验详情... 当前状态：违反该物理边界上限，失洽度极其严重。' : item.desc_en}</p>
-                </div>
-              ))}
+          {/* Four-way fingerprint (right) */}
+          <div className="bg-white border border-[#E2E7EF] rounded-[6px] p-5 shadow-sm">
+            <h4 className="text-[12px] font-black text-[#0F1722] uppercase tracking-wider mb-3">
+              {tLabel('Four-Way Co-Settlement Locked Unreported Generator Fingerprint',
+                      '四方自组织联合联合清算锁定未申报发电机组物理指纹证据')}
+            </h4>
+            <div className="space-y-2.5">
+              <div className="border-l-2 border-[#D8454C] bg-[#D8454C]/5 p-2.5 rounded-sm shadow-sm">
+                <div className="text-[10px] font-black text-[#D8454C] uppercase font-mono">A · Carbon Shield Bypass</div>
+                <div className="text-[10px] text-[#6A7686] mt-1 pr-1">{tLabel('Declared carbon is 20% lower than actual theoretical expectations, indicating hidden boilers.', '掩盖碳排放指标：烟道气体成分比例提示煤耗在夜间突然剧增，烟气物理黑数与申报偏差 -20.0%。')}</div>
+              </div>
+              <div className="border-l-2 border-[#D8454C] bg-[#D8454C]/5 p-2.5 rounded-sm shadow-sm">
+                <div className="text-[10px] font-black text-[#D8454C] uppercase font-mono">B · Electrical Active High</div>
+                <div className="text-[10px] text-[#6A7686] mt-1 pr-1">{tLabel('Grid power flows higher than permit records by 17.5%, sustained over 6 consecutive months.', '并网输电口过充：KEGOC电网关口表实测流超额 17.5% 以上，财务套现隐瞒账目，持续长达 180 天。')}</div>
+              </div>
+              <div className="border-l-2 border-[#D8454C] bg-[#D8454C]/5 p-2.5 rounded-sm shadow-sm">
+                <div className="text-[10px] font-black text-[#D8454C] uppercase font-mono">C · Decoupled Mass Ratio</div>
+                <div className="text-[10px] text-[#6A7686] mt-1 pr-1">{tLabel('Heat-rate / mass-balance decoupled from peer regional parameters by +9.4%.', '能耗配额失洽：辅机冷凝机组热平衡值相比同类型公摊高出 +9.4% 异常异动，坐实未报机组存在。')}</div>
+              </div>
+            </div>
+            <div className="text-[8.5px] font-mono text-[#A8B2C0] mt-3.5 text-right">
+              {tLabel('Verified by: GEN-VIOLATION-ENT-72 · 2026-05-28 · Mapped to CASE-2026-001',
+                      '证据识别：GEN-VIOLATION-ENT-72 · 2026-05-28 当前并转至中央案件库 CASE-2026-001')}
             </div>
           </div>
         </div>
-      )}
 
-      {/* BOTTOM PIPELINE STATUS BAR */}
-      <div className="h-14 bg-white border-t border-[#E2E7EF] px-5 flex items-center justify-between shrink-0 select-none pb-2 pt-2">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="text-[10px] font-black uppercase tracking-wider text-[#A8B2C0] w-[140px] shrink-0 font-mono">
-            {tLabel('REGULATORY PIPELINE', '国家能源闭环督办流程泳道')}
-          </div>
-          
-          <div className="flex-1 flex items-center justify-between gap-1 max-w-[1200px]">
-             {/* 6 Stage list */}
-             {[
-               { label_en: 'DETECT', label_zh: '触发建档', count: 12, status: 'RED' },
-               { label_en: 'ATTRIBUTE', label_zh: '研判归因', count: 8, status: 'AMBER' },
-               { label_en: 'DISPATCH', label_zh: '极速外勤派单', count: 5, status: 'GREEN' },
-               { label_en: 'RESOLVE', label_zh: '整改核算', count: 3, status: 'GREEN' },
-               { label_en: 'REVIEW', label_zh: '行政复核', count: 2, status: 'GREEN' },
-               { label_en: 'ARCHIVE', label_zh: '案件归档', count: 1, status: 'GREEN' },
-             ].map((p, idx) => (
-               <React.Fragment key={idx}>
-                 <div 
-                   onClick={() => navigate('/closure/effectiveness')}
-                   className="flex items-center gap-2 cursor-pointer group bg-slate-50 border border-slate-100 hover:border-[#2D6CDF]/30 px-3 py-1 rounded-[4px] transition-all"
-                 >
-                   <span className={`w-1.5 h-1.5 rounded-full ${
-                     p.status === 'RED' ? 'bg-[#D8454C] animate-pulse' : p.status === 'AMBER' ? 'bg-[#E89518]' : 'bg-[#2FA862]'
-                   }`} />
-                   <span className="text-[11px] font-black text-[#0F1722] font-mono group-hover:text-[#2D6CDF]">
-                     {language === 'zh' ? p.label_zh : p.label_en}
-                   </span>
-                   <span className="text-[10px] text-[#6A7686] bg-[#FAFBFD] border border-border-default px-1 rounded">
-                     {p.count.toString().padStart(2, '0')}
-                   </span>
-                 </div>
-                 {idx < 5 && (
-                   <div className="h-0.5 flex-1 bg-gradient-to-r from-slate-200 to-slate-200" />
-                 )}
-               </React.Fragment>
-             ))}
-          </div>
-        </div>
+      </div>
 
-        <div className="text-[10px] text-[#6A7686] font-mono ml-4 text-right shrink-0">
-          <strong>33 active cases</strong> · 5 in preventive window · 0 today
+      {/* Bottom mini status (replacing 闭环督办流程泳道图) */}
+      <div className="h-9 bg-white border-t border-[#E2E7EF] px-5 flex items-center justify-between shrink-0 text-[9.5px] font-mono text-[#6A7686]">
+        <div className="flex items-center gap-3">
+          <span className="text-[8.5px] font-black text-[#A8B2C0] uppercase tracking-wider">{tLabel('PIPELINE', '督办流程')}</span>
+          {['DETECT 12', 'ATTRIBUTE 8', 'DISPATCH 5', 'RESOLVE 3', 'REVIEW 2', 'ARCHIVE 1'].map((s, i) => (
+            <span key={i} className="flex items-center gap-1.5">
+              <span className={cn("w-1.5 h-1.5 rounded-full", i === 0 ? 'bg-[#D8454C] animate-pulse' : i === 1 ? 'bg-[#E89518]' : 'bg-[#2FA862]')} />
+              <span className="font-extrabold text-[#0F1722]">{s}</span>
+            </span>
+          ))}
         </div>
+        <span>33 active · 5 in preventive window</span>
       </div>
 
     </div>

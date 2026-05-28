@@ -446,7 +446,7 @@ export default function RegulatoryEffectiveness() {
                     )
                   : tLabel(
                       'Compliance metrics are stable. No urgent field maneuvers required. Continue 15-min rolling SCADA telemetry passive tracking.',
-                      '当前各项合规实物指标皆大体平稳存续，处于安全工况包络。无需启动任何物理特遣外勤指令。维持常态化每15分钟高频SCADA物联网物理测点 passive tracking（被动流监察）即可。'
+                      '当前各项合规实物指标皆大体平稳存续，处于安全工况包络。无需启动任何物理特遣外勤指令。维持常态化每15分钟高频SCADA物联网物理测点被动流监察即可。'
                     )
                 }
               </p>

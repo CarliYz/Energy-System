@@ -8,13 +8,13 @@ import NationalGrid from './pages/NationalGrid';
 import RegionalFacilities from './pages/RegionalFacilities';
 import EquipmentProfile from './pages/EquipmentProfile';
 import PipelineTimeSeries from './pages/PipelineTimeSeries';
-import EnterpriseReporting from './pages/EnterpriseReporting';
 import WorkflowAttribution from './pages/WorkflowAttribution';
 import KnowledgeGraph from './pages/KnowledgeGraph';
 import EventAudit from './pages/EventAudit';
 import ReportGeneration from './pages/ReportGeneration';
 import MinisterDashboard from './pages/MinisterDashboard';
 import SentimentConsole from './pages/SentimentConsole';
+import SentimentTopicDetail from './pages/SentimentTopicDetail';
 import RegulatoryEffectiveness from './pages/RegulatoryEffectiveness';
 
 export default function App() {
@@ -39,10 +39,13 @@ export default function App() {
             <Route path="warning">
               <Route path="timeseries" element={<PipelineTimeSeries />} />
               <Route path="timeseries/:anomalyId" element={<PipelineTimeSeries />} />
-              <Route path="enterprise" element={<EnterpriseReporting />} />
-              <Route path="enterprise/:entId" element={<EnterpriseReporting />} />
               <Route path="sentiment" element={<SentimentConsole />} />
               <Route path="sentiment/:topicId" element={<SentimentConsole />} />
+            </Route>
+
+            <Route path="sentiment">
+              <Route path="console" element={<SentimentConsole />} />
+              <Route path="topic/:topicId" element={<SentimentTopicDetail />} />
             </Route>
 
             <Route path="closure">

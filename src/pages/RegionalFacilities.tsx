@@ -151,6 +151,27 @@ export default function RegionalFacilities() {
     setDrawerOpen(true);
   };
 
+  const getTranslatedNodeSubtitle = (node: any) => {
+    if (!node) return '';
+    if (language !== 'zh') {
+      return `${node.type?.replace('_', ' ')} / ${node.subtype || 'STANDARD_NODE'}`;
+    }
+    const typeZh = 
+      node.type === 'GAS_COMPRESSOR' ? '气相主增压机' :
+      node.type === 'OIL_TERMINAL' ? '原油外输终点站' :
+      node.type === 'OFFSHORE_FPSO' ? '近海油气储卸船' :
+      node.type === 'WELLFIELD' ? '油气井群区块' :
+      node.type === 'SUBSTATION' ? '高低压变配电所' :
+      node.type?.replace('_', ' ') || '';
+    const subZh = 
+      node.subtype === 'BOOSTER_STATION' ? '二级增压调载站' :
+      node.subtype === 'FPSO' ? '防爆储运船' :
+      node.subtype === 'THERMAL_WELLS' ? '重油热采区' :
+      node.subtype === 'DISTRIBUTION' ? '局网配电支路' :
+      node.subtype || '标准物理测点';
+    return `${typeZh} / ${subZh}`;
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-bg-page font-sans">
       {/* Context Bar */}
@@ -662,7 +683,7 @@ export default function RegionalFacilities() {
         isOpen={isDrawerOpen}
         onClose={() => setDrawerOpen(false)}
         title={selectedNode?.id || (language === 'zh' ? '设施物联探析' : 'FACILITY DETAIL')}
-        subtitle={`${language === 'zh' ? '物理分类：' : ''}${selectedNode?.type?.replace('_', ' ')} / ${selectedNode?.subtype || 'STANDARD_NODE'}`}
+        subtitle={`${language === 'zh' ? '物理分类：' : ''}${getTranslatedNodeSubtitle(selectedNode)}`}
         footer={
           <div className="flex gap-2 w-full">
             <Button variant="secondary" className="flex-1 shrink-0">

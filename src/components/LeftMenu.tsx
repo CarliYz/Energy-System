@@ -25,30 +25,35 @@ const MENU_GROUPS = [
       { id: 'minister', label: 'Minister Dashboard', path: '/minister/dashboard', icon: ShieldCheck, count: null },
       { id: 'national', label: 'National Energy Grid', path: '/sensing/national-grid', icon: MapIcon, count: 42 },
       { id: 'regional', label: 'Regional Facilities', path: '/sensing/regional/aktau', icon: Activity, count: 88 },
-      { id: 'facility', label: 'Facility Profile', path: '/sensing/facility/default', icon: BarChart3, count: 9 },
     ]
   },
   {
-    title: 'Act II · Pre-emptive Warning',
+    title: 'Act II · Infrastructure Monitoring',
     color: '#D8454C',
     items: [
+      { id: 'facility', label: 'Facility Profile', path: '/sensing/facility/default', icon: BarChart3, count: 9 },
       { id: 'timeseries', label: 'Pipeline Time-Series', path: '/warning/timeseries', icon: AlertTriangle, count: 12 },
-      { id: 'enterprise', label: 'Enterprise Reporting', path: '/warning/enterprise', icon: ShieldAlert, count: 4 },
+    ]
+  },
+  {
+    title: 'Act III · Macro Sentiment',
+    color: '#2D6CDF',
+    items: [
       { id: 'sentiment', label: 'Sentiment & Opinion', path: '/warning/sentiment', icon: Activity, count: 99 },
     ]
   },
   {
-    title: 'Act III · Closed-Loop Attribution',
-    color: '#2D6CDF',
+    title: 'Act IV · Enterprise Anomaly Oversight',
+    color: '#E89518',
     items: [
-      { id: 'effectiveness', label: 'Anti-Evasion Enforcement Efficacy', path: '/closure/effectiveness', icon: ShieldAlert, count: 1247 },
+      { id: 'effectiveness', label: 'Enterprise Knowledge Base', path: '/closure/effectiveness', icon: ShieldAlert, count: 1247 },
       { id: 'workflow', label: 'Workflow Attribution', path: '/attribution/workflow', icon: GitBranch, count: 8 },
       { id: 'graph', label: 'Commercial Graph', path: '/attribution/graph', icon: BarChart3, count: 15 },
     ]
   },
   {
-    title: 'Act IV · Audit & Brief',
-    color: '#E89518',
+    title: 'Act V · Audit & Brief',
+    color: '#8B5CF6',
     items: [
       { id: 'audit', label: 'Life-Cycle Audit Trail', path: '/audit/event/CASE-2026-001', icon: FileCheck, count: 42 },
       { id: 'report', label: 'Minister Brief', path: '/audit/report', icon: FileText, count: null },

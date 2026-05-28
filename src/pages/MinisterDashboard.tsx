@@ -832,7 +832,7 @@ export default function MinisterDashboard() {
                 return (
                   <motion.div
                     key={`${topic.id}-${i}`}
-                    onClick={() => navigate('/warning/sentiment')}
+                    onClick={() => navigate('/sentiment/console')}
                     className="absolute cursor-pointer hover:scale-[1.15] active:scale-[0.9] flex flex-col justify-center items-center text-center shadow transition-all duration-300 pointer-events-auto border border-black/5"
                     style={{
                       left: coord.left,

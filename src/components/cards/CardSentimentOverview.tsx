@@ -31,16 +31,10 @@ const LINE_TRENDS = [
 export default function CardSentimentOverview() {
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const t = (arg1: string, arg2?: string) => {
-    if (!arg2) return arg1;
-    const hasChinese = (s: string) => /[\u4E00-\u9FFF]/.test(s);
-    if (hasChinese(arg1) && !hasChinese(arg2)) {
-      return language === 'zh' ? arg1 : arg2;
-    }
-    if (hasChinese(arg2) && !hasChinese(arg1)) {
-      return language === 'zh' ? arg2 : arg1;
-    }
-    return language === 'zh' ? arg2 : arg1;
+  
+  const t = (en: string, zh?: string) => {
+    if (!zh) return en;
+    return language === 'zh' ? zh : en;
   };
 
   // View switch state
@@ -49,9 +43,14 @@ export default function CardSentimentOverview() {
   const [hoveredLineIndex, setHoveredLineIndex] = useState<number | null>(null);
 
   // CompactPostCard state
-  const [postText, setPostText] = useState(
-    '【特级指令 · 阿特劳物理压力平衡研判】里海管道Corridor周边侦听发生偏离。紧急提请属地合规外勤组启动15分钟滚动激光探嗅特检，同步开启对西里海主体（ENT-0091）账目关联与资金流限额。'
-  );
+  const defaultTextEn = '[SPECIAL DIRECTIVE · ATYRAU PHYSICAL PRESSURE INTEGRATION] Anomalous telemetry deviation detected along the Caspian pipeline corridor. Urgently requesting local field group to initialize 15-minute rolling laser sniff checks, and temporarily limit outbound liquid flow & financing channels for Western Caspian LLC (ENT-0591).';
+  const defaultTextZh = '【特级指令 · 阿特劳物理压力平衡研判】里海管道Corridor周边侦听发生偏离。紧急提请属地合规外勤组启动15分钟滚动激光探嗅特检，同步开启对西里海主体（ENT-0091）账目关联与资金流限额。';
+
+  const [postText, setPostText] = useState(defaultTextZh);
+
+  React.useEffect(() => {
+    setPostText(language === 'zh' ? defaultTextZh : defaultTextEn);
+  }, [language]);
   
   const [syncGrid, setSyncGrid] = useState(true);
   const [syncFieldTeam, setSyncFieldTeam] = useState(true);

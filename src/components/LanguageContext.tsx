@@ -16,6 +16,8 @@ const DICTIONARY: Record<string, string> = {
   'Facility Profile': '关键设施设备监控',
   'Pipeline Time-Series': '关键基础设施异常分析',
   'Sentiment & Opinion': '宏观舆情监测',
+  'Macro Sentiment Monitoring': '宏观舆情监测',
+  'Specific Sentiment Investigation': '舆情分析调查',
   'Enterprise Knowledge Base': '能源重点企业知识库',
   'Workflow Attribution': '多智能体联合判归',
   'Commercial Graph': '商业穿透与利益图谱',

@@ -6,32 +6,31 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Live SAT-COM Screenshot Mockup component
-const NewsScreenshotMock = ({ source, title }: { source: string; title: string }) => {
+// Live SAT-COM Screenshot Mockup component with real image support
+const NewsScreenshotMock = ({ source, title, imageUrl }: { source: string; title: string; imageUrl: string }) => {
   return (
-    <div className="w-full h-[95px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 rounded border border-slate-700 relative overflow-hidden flex flex-col justify-between p-3.5 select-none shrink-0 shadow-lg">
-      <div className="absolute top-0 right-0 left-0 h-[3px] bg-gradient-to-r from-[#D8454C] via-[#E89518] to-[#2FA862] opacity-70" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent opacity-50" />
+    <div 
+      className="w-full h-[115px] rounded border border-slate-200 relative overflow-hidden flex flex-col justify-end p-3.5 select-none shrink-0 shadow-md bg-cover bg-center transition-all duration-300"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
+      {/* Dark overlay gradient at bottom to ensure text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-90" />
+      <div className="absolute top-0 right-0 left-0 h-[3px] bg-gradient-to-r from-[#D8454C] via-[#E89518] to-[#2FA862] opacity-80" />
       
       {/* Terminal grid lines overlay for simulation */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.06] bg-[linear-gradient(rgba(18,24,38,0)_95%,_rgba(255,255,255,1)_5%)] bg-[size:100%_4px]" />
 
-      <div className="flex items-center justify-between text-[7px] font-mono text-slate-400 font-bold select-none leading-none z-10">
+      <div className="flex items-center justify-between text-[7px] font-mono text-slate-300 font-bold select-none leading-none z-10">
         <span className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
-          <span>SATELLITE INTEL BEAMS</span>
+          <span>SATELLITE INTEL BEAMS / 卫星遥感物理勘测</span>
         </span>
-        <span>CH-0{Math.floor(Math.random() * 8) + 1} LIVE</span>
+        <span>SECURED_LINE</span>
       </div>
 
-      <div className="space-y-1 z-10">
-        <span className="text-[7.5px] uppercase font-mono tracking-widest text-[#D8454C] font-black">{source} FEED RESIDUAL //</span>
-        <h4 className="text-[10px] font-black text-white leading-tight truncate tracking-tight">{title}</h4>
-      </div>
-
-      <div className="flex items-center justify-between text-slate-500 text-[6.5px] font-mono border-t border-slate-800/80 pt-1 z-10 select-none leading-none">
-        <span>GEOCOORDS: LAT 43°15'N LONG 76°57'E</span>
-        <span className="text-green-500 font-bold">SECURED_LINE</span>
+      <div className="space-y-0.5 z-10 mt-1.5 leading-none">
+        <span className="text-[7px] uppercase font-mono tracking-widest text-[#FFF] opacity-60 font-black">{source} FEED SIGNAL //</span>
+        <h4 className="text-[9.5px] font-bold text-white leading-tight truncate tracking-tight">{title}</h4>
       </div>
     </div>
   );
@@ -88,7 +87,7 @@ export default function CardGlobalEnergyNews() {
         <div className="flex items-center gap-2">
           <Globe className="text-[#2D6CDF] shrink-0" size={16} />
           <h2 className="text-[13.5px] font-black uppercase text-[#0F1722] tracking-wider">
-            {t('Energy and Lifeline Geopolitical News', '能源方向新闻监测中心')}
+            {t('Energy and Lifeline Geopolitical News', '能源方向舆情新闻监测中心')}
           </h2>
         </div>
 
@@ -102,7 +101,7 @@ export default function CardGlobalEnergyNews() {
             }}
             className={`px-3 py-1 text-[9.5px] font-bold transition-all cursor-pointer ${activeScope === 'domestic' ? 'bg-[#0F1722] text-white' : 'text-slate-500 hover:text-slate-850'}`}
           >
-            {t('DOMESTIC / INTERNAL', '国内')}
+            {t('DOMESTIC / INTERNAL', '国内舆情')}
           </button>
           <button 
             onClick={() => {
@@ -112,7 +111,7 @@ export default function CardGlobalEnergyNews() {
             }}
             className={`px-3 py-1 text-[9.5px] font-bold transition-all cursor-pointer border-l border-slate-200 ${activeScope === 'overseas' ? 'bg-[#0F1722] text-white' : 'text-slate-500 hover:text-slate-850'}`}
           >
-            {t('OVERSEAS / INT\'L', '海外')}
+            {t('OVERSEAS / INT\'L', '海外舆情')}
           </button>
         </div>
       </div>
@@ -137,16 +136,16 @@ export default function CardGlobalEnergyNews() {
                 }`}
               >
                 <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 select-none">
-                  <span className="font-extrabold text-slate-800">{item.source}</span>
-                  <span>{item.timeAgo}</span>
+                  <span className="font-extrabold text-slate-850">{language === 'zh' ? item.sourceZh : item.source}</span>
+                  <span>{language === 'zh' ? item.timeAgoZh : item.timeAgo}</span>
                 </div>
                 <h4 className="font-bold text-slate-800 leading-tight tracking-tight line-clamp-2 select-text text-[10.5px]">
-                  {item.title}
+                  {language === 'zh' ? item.titleZh : item.title}
                 </h4>
                 <div className="flex items-center justify-between mt-auto select-none leading-none pt-0.5">
                   <span className="text-[7.5px] text-slate-400 font-mono">CODE: {item.id}</span>
                   <span className="text-[7.5px] font-mono font-black scale-90 px-1 py-0.2 rounded" style={{ backgroundColor: `${color}10`, color: color }}>
-                    {item.severityLabel}
+                    {language === 'zh' ? (item.severity === 'critical' ? '严重' : item.severity === 'medium' ? '中度' : '轻度') : item.severityLabel}
                   </span>
                 </div>
               </div>
@@ -162,32 +161,36 @@ export default function CardGlobalEnergyNews() {
               {/* Metadata tags */}
               <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 select-none border-b border-slate-100 pb-1.5 leading-none">
                 <span className="font-black text-[#2D6CDF]">{activeNewsObj.sourceUrl}</span>
-                <span>{activeNewsObj.region}</span>
+                <span>{language === 'zh' ? activeNewsObj.regionZh : activeNewsObj.region}</span>
               </div>
 
               {/* Title display */}
               <h3 className="text-[12.5px] font-extrabold text-slate-900 leading-snug tracking-tight">
-                {activeNewsObj.title}
+                {language === 'zh' ? activeNewsObj.titleZh : activeNewsObj.title}
               </h3>
 
-              {/* Satellite Video Screenshot */}
-              <NewsScreenshotMock source={activeNewsObj.source} title={activeNewsObj.title} />
+              {/* Satellite Video Screenshot with REAL photo */}
+              <NewsScreenshotMock 
+                source={language === 'zh' ? activeNewsObj.sourceZh : activeNewsObj.source} 
+                title={language === 'zh' ? activeNewsObj.titleZh : activeNewsObj.title} 
+                imageUrl={activeNewsObj.image}
+              />
 
               {/* Story summary full content */}
               <div className="space-y-1.5 text-[11px] leading-relaxed font-semibold text-slate-500">
-                <p>{activeNewsObj.fullText}</p>
+                <p>{language === 'zh' ? activeNewsObj.fullTextZh : activeNewsObj.fullText}</p>
               </div>
 
               {/* KPI Impact Metrics table */}
               {activeNewsObj.kpiImpact && activeNewsObj.kpiImpact.length > 0 && (
                 <div className="bg-white/80 border border-slate-150 rounded p-2.5 space-y-2 select-none shrink-0 text-left">
                   <div className="text-[8px] font-mono text-slate-400 font-black uppercase tracking-wider leading-none">
-                    Telemetry Impact Parameters Estimate
+                    {language === 'zh' ? '物理遥测影响测估核心指标' : 'Telemetry Impact Parameters Estimate'}
                   </div>
                   <div className="space-y-1.5 font-bold text-[10px]">
                     {activeNewsObj.kpiImpact.map((k, idx) => (
                       <div key={idx} className="flex justify-between items-center py-0.5 border-b border-slate-50 last:border-0 leading-none">
-                        <span className="text-slate-500 font-medium">• {k.kpi}</span>
+                        <span className="text-slate-500 font-medium">• {language === 'zh' ? k.kpiZh : k.kpi}</span>
                         <span className={`font-mono font-black ${k.deltaPct < 0 ? 'text-red-500' : 'text-[#2FA862]'}`}>
                           {k.deltaPct > 0 ? `+${k.deltaPct}%` : `${k.deltaPct}%`}
                         </span>

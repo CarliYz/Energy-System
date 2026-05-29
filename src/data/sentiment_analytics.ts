@@ -179,3 +179,5 @@ export const SPREAD_PATHWAYS: FlowLink[] = [
   { source: '1200亿风能启动舆论', target: '萨马鲁克本地绿色宣推', value: 45, color: '#2FA862' },
   { source: '萨马鲁克本地绿色宣推', target: 'ESG绿色社会信托增值流入', value: 38, color: '#2FA862' }
 ];
+
+export const keywordCloud = WORD_CLOUD_LABELS;

@@ -12,7 +12,8 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  BrainCircuit
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { useLanguage } from './LanguageContext';
@@ -39,7 +40,8 @@ const MENU_GROUPS = [
     title: 'Act III · Macro Sentiment',
     color: '#2D6CDF',
     items: [
-      { id: 'sentiment', label: 'Sentiment & Opinion', path: '/warning/sentiment', icon: Activity, count: 99 },
+      { id: 'sentiment',               label: 'Macro Sentiment Monitoring',     path: '/warning/sentiment',          icon: Activity,    count: 99 },
+      { id: 'sentiment-investigation', label: 'Specific Sentiment Investigation', path: '/sentiment/topic/ENG-001', icon: BrainCircuit, count: 10 },
     ]
   },
   {

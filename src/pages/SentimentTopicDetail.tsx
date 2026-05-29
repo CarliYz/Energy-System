@@ -7,6 +7,9 @@ import {
 import { cn } from '@/src/lib/utils';
 import { useLanguage } from '../components/LanguageContext';
 import { SENTIMENT_TOPICS } from './SentimentConsole';
+import { ChartKeywordCloud } from '../components/sentiment/ChartKeywordCloud';
+import { keywordCloud } from '../data/sentiment_analytics';
+import { SentimentSixChartsTabs } from '../components/sentiment/SentimentSixChartsTabs';
 
 // @ts-ignore
 import almatyEnergyBill from '../assets/images/almaty_energy_bill_1779900527988.png';
@@ -103,9 +106,23 @@ export default function SentimentTopicDetail() {
             className="flex items-center gap-1.5 text-[#6A7686] hover:text-[#0F1722] pr-3 border-r border-[#E2E7EF] text-[11px] font-bold">
             <ArrowLeft size={13} /> {tLabel('Back to Sentiment Console', '返回舆情列表')}
           </button>
-          <span className="text-[11.5px] font-black uppercase text-[#0F1722] tracking-wider">
-            {tLabel('TOPIC DEEP DIVE', '话题深度分析')} · {topic.id}
+          <span className="text-[11.5px] font-black uppercase text-[#0F1722] tracking-wider shrink-0">
+            {tLabel('TOPIC DEEP DIVE', '话题深度分析')}
           </span>
+          <div className="relative flex items-center gap-1.5 ml-2">
+            <span className="text-[10px] text-slate-400 font-mono font-bold">TOPIC:</span>
+            <select
+              value={topic.id}
+              onChange={(e) => navigate(`/sentiment/topic/${e.target.value}`)}
+              className="bg-slate-50 border border-[#E2E7EF] rounded px-2 py-1 text-[11px] font-black text-[#0F1722] outline-none cursor-pointer hover:bg-slate-100 transition-all font-mono"
+            >
+              {SENTIMENT_TOPICS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.id} - {language === 'zh' ? t.title_zh : t.title_en}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <span className="px-2 py-0.5 bg-[#D8454C] text-white text-[8px] font-bold rounded-sm uppercase font-mono">HIGH PRIORITY</span>
       </div>
@@ -287,113 +304,12 @@ export default function SentimentTopicDetail() {
           </div>
         </div>
 
-        {/* ===== 6 ANALYSIS SCENARIOS ===== */}
-        <div className="grid grid-cols-3 gap-4">
-          {/* 1. Volume trend */}
-          <ScenarioCard title={tLabel('1. Volume Trend (30D)', '1. 声量趋势 (30 天)')}>
-            <div className="p-3">
-              <svg className="w-full h-28" viewBox="0 0 200 100">
-                <path fill="none" stroke="#2D6CDF" strokeWidth="2"
-                  d="M 0,85 Q 30,80 50,70 T 100,60 T 140,20 T 170,40 T 200,50" />
-                <circle cx="140" cy="20" r="4" fill="#D8454C">
-                  <animate attributeName="r" from="4" to="8" dur="1s" repeatCount="indefinite" />
-                </circle>
-                <text x="95" y="15" fontSize="7" fill="#D8454C" fontWeight="bold">KOL Outburst Trigger</text>
-              </svg>
-            </div>
-          </ScenarioCard>
-
-          {/* 2. Sentiment pie */}
-          <ScenarioCard title={tLabel('2. Sentiment Distribution', '2. 情绪分布玫瑰图')}>
-            <div className="flex items-center justify-center h-28">
-              <svg viewBox="0 0 100 100" className="w-24 h-24">
-                <circle cx="50" cy="50" r="35" fill="none" stroke="#E2E7EF" strokeWidth="15" />
-                <circle cx="50" cy="50" r="35" fill="none" stroke="#D8454C" strokeWidth="15"
-                  strokeDasharray={`${0.73 * 220} 220`} transform="rotate(-90 50 50)" />
-                <text x="50" y="47" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#D8454C">-73%</text>
-                <text x="50" y="58" textAnchor="middle" fontSize="6" fill="#6A7686" fontWeight="bold">NEGATIVE</text>
-              </svg>
-            </div>
-          </ScenarioCard>
-
-          {/* 3. Top keywords */}
-          <ScenarioCard title={tLabel('3. Top Keywords', '3. 高频关键词')}>
-            <div className="flex flex-wrap gap-1.5 p-3 h-28 overflow-hidden items-center justify-center">
-              {[
-                { w: 'LPG', sz: 14, col: '#D8454C' },
-                { w: '价格 PRICE', sz: 12, col: '#0F1722' },
-                { w: '抗议 PROTEST', sz: 13, col: '#D8454C' },
-                { w: '司法 JUSTICE', sz: 10, col: '#0F1722' },
-                { w: '司机 DRIVER', sz: 11, col: '#0F1722' },
-                { w: '不公 UNFAIR', sz: 9, col: '#6A7686' },
-                { w: '腐败 CORRUPTION', sz: 9, col: '#D8454C' }
-              ].map((k, i) => (
-                <span key={i} className="font-extrabold tracking-tight"
-                  style={{ fontSize: `${k.sz}px`, color: k.col }}>{k.w}</span>
-              ))}
-            </div>
-          </ScenarioCard>
-
-          {/* 4. Demographics */}
-          <ScenarioCard title={tLabel('4. Demographics', '4. 参与人群结构势图')}>
-            <div className="p-3 space-y-2 h-28 overflow-hidden flex flex-col justify-center">
-              {[
-                { en: 'Male', zh: '男', v: 78, c: '#2D6CDF' },
-                { en: 'Female', zh: '女', v: 22, c: '#D8454C' },
-                { en: 'Age 25-34', zh: '25-34岁', v: 64, c: '#E89518' }
-              ].map((row, i) => (
-                <div key={i} className="flex items-center gap-2 text-[9px] font-mono">
-                  <span className="w-14 text-[#6A7686] truncate">{tLabel(row.en, row.zh)}</span>
-                  <div className="flex-1 h-2 bg-slate-100 rounded overflow-hidden">
-                    <div className="h-full rounded-sm" style={{ width: `${row.v}%`, background: row.c }} />
-                  </div>
-                  <span className="font-mono font-black text-[#0F1722] w-6 text-right">{row.v}%</span>
-                </div>
-              ))}
-            </div>
-          </ScenarioCard>
-
-          {/* 5. Platform share */}
-          <ScenarioCard title={tLabel('5. Platform Share', '5. 监测平台分布图')}>
-            <div className="p-3 space-y-1.5 h-28 overflow-hidden flex flex-col justify-center">
-              {[
-                { n: 'TikTok', v: 38, c: '#D8454C' },
-                { n: 'Telegram', v: 27, c: '#2D6CDF' },
-                { n: 'Facebook', v: 18, c: '#1877F2' },
-                { n: 'X', v: 12, c: '#0F1722' }
-              ].map((row, i) => (
-                <div key={i} className="flex items-center gap-2 text-[9px] font-mono">
-                  <span className="w-12 text-[#6A7686]">{row.n}</span>
-                  <div className="flex-1 h-1.5 bg-slate-100 rounded overflow-hidden">
-                    <div className="h-full rounded-sm" style={{ width: `${row.v}%`, background: row.c }} />
-                  </div>
-                  <span className="font-mono font-black text-[#0F1722] w-6 text-right">{row.v}%</span>
-                </div>
-              ))}
-            </div>
-          </ScenarioCard>
-
-          {/* 6. Cross-platform propagation heatmap */}
-          <ScenarioCard title={tLabel('6. Cross-Platform Heatmap', '6. 跨平台传播热力图')}>
-            <div className="p-2.5 grid grid-cols-[50px_1fr] gap-1 h-28 overflow-hidden text-[7.5px] font-mono">
-              {['TikTok', 'Telegram', 'X', 'Facebook', 'YouTube'].map((plat, pi) => (
-                <React.Fragment key={pi}>
-                  <span className="text-[#6A7686] self-center">{plat}</span>
-                  <div className="flex gap-0.5 items-center">
-                    {Array.from({ length: 14 }).map((_, di) => {
-                      const intensity = Math.sin(pi * 0.7 + di * 0.5) * 0.5 + 0.5;
-                      const alpha = Math.max(0.08, intensity * (pi === 0 || pi === 1 ? 1 : 0.6));
-                      return (
-                        <div key={di} className="flex-1 h-2.5 rounded-[1px]"
-                          style={{ background: `rgba(216, 69, 76, ${alpha})` }} 
-                          title={`Intensity: ${Math.round(intensity * 100)}%`} />
-                      );
-                    })}
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
-          </ScenarioCard>
+        {/* ===== 6 INTERACTIVE ANALYSIS TABS (SPECIFIC INVESTIGATION WORKSPACE) ===== */}
+        <div className="bg-white border border-[#E2E7EF] rounded-[6px] p-5 shadow-sm min-h-[360px]">
+          <h3 className="text-[12px] font-black text-[#0F1722] uppercase tracking-wider mb-3">
+            {tLabel('Deep Sentiment Investigation Workspace', '舆情深度分析调查工作台')}
+          </h3>
+          <SentimentSixChartsTabs />
         </div>
 
       </div>

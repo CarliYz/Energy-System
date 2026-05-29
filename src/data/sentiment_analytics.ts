@@ -16,11 +16,22 @@ export type AspectDistribution = {
 
 export type WordCloudLabel = {
   text: string;
+  textEn: string;
+  textZh: string;
   weight: number; // frequency
   x: number; // Centered offset coordinate %-equivalent OR raw px
   y: number;
   angle: number; // 0 or -30
   sentiment: 'positive' | 'negative' | 'neutral';
+};
+
+export type PathwayItem = {
+  sourceEn: string;
+  sourceZh: string;
+  targetEn: string;
+  targetZh: string;
+  value: number;
+  color: string;
 };
 
 export type FlowLink = {
@@ -85,26 +96,26 @@ export const SENTIMENT_ASPECTS: AspectDistribution[] = [
 
 // Spirally arranged cloud labels (centered offset X%, Y% relative to canvas center 0,0)
 export const WORD_CLOUD_LABELS: WordCloudLabel[] = [
-  { text: '一类民生用电涨幅 +35%', weight: 48, x: 0, y: 0, angle: 0, sentiment: 'negative' },
-  { text: 'Atyrau 4号阀站受突袭', weight: 40, x: -120, y: -45, angle: 0, sentiment: 'negative' },
-  { text: '断电停运 (Grid Crash)', weight: 34, x: 130, y: 40, angle: -30, sentiment: 'negative' },
-  { text: 'CPC管道溢价波及', weight: 32, x: 100, y: -75, angle: 0, sentiment: 'negative' },
-  { text: '里海输油阻尼大', weight: 30, x: -140, y: 55, angle: -30, sentiment: 'negative' },
-  { text: '1200亿风电项目投建', weight: 28, x: -60, y: -100, angle: 0, sentiment: 'positive' },
-  { text: '瞒报油品漏油扣罚', weight: 26, x: 70, y: 105, angle: 0, sentiment: 'negative' },
-  { text: '系统高频SCADA核实', weight: 24, x: -160, y: -110, angle: -30, sentiment: 'neutral' },
-  { text: '物理流量多口径一致性', weight: 22, x: 180, y: -100, angle: 0, sentiment: 'neutral' },
-  { text: '电费上涨 +35%', weight: 22, x: -15, y: 80, angle: 0, sentiment: 'negative' },
-  { text: '反虚开发票欺诈', weight: 21, x: 130, y: -30, angle: -30, sentiment: 'neutral' },
-  { text: '低耗能绿色转型', weight: 20, x: 45, y: -50, angle: 0, sentiment: 'positive' },
-  { text: '哈国生态部配额卡死', weight: 19, x: -80, y: 40, angle: -30, sentiment: 'negative' },
-  { text: '火炬乱燃特惩 $40/T', weight: 18, x: -30, y: -150, angle: 0, sentiment: 'negative' },
-  { text: '无证生产高危主体', weight: 17, x: 30, y: 140, angle: -30, sentiment: 'negative' },
-  { text: '特遣派驻实勘现场', weight: 16, x: -110, y: 110, angle: 0, sentiment: 'neutral' },
-  { text: '中德直驱机组到位', weight: 15, x: 140, y: 90, angle: 0, sentiment: 'positive' },
-  { text: '里海风场并网投产', weight: 14, x: -130, y: -10, angle: -30, sentiment: 'positive' },
-  { text: '偷盗漏电开采矿机', weight: 13, x: 180, y: 30, angle: 0, sentiment: 'negative' },
-  { text: '智催督导告诫令速达', weight: 12, x: 30, y: -120, angle: -30, sentiment: 'neutral' },
+  { text: '一类民生用电涨幅 +35%', textZh: '一类民生用电涨幅 +35%', textEn: 'Livelihood Tariff Hike +35%', weight: 48, x: 0, y: 0, angle: 0, sentiment: 'negative' },
+  { text: 'Atyrau 4号阀站受突袭', textZh: 'Atyrau 4号阀站受突袭', textEn: 'Atyrau Valve Station 4 Ambushed', weight: 40, x: -120, y: -45, angle: 0, sentiment: 'negative' },
+  { text: '断电停运 (Grid Crash)', textZh: '断电停运 (Grid Crash)', textEn: 'Grid Outage / Crash', weight: 34, x: 130, y: 40, angle: -30, sentiment: 'negative' },
+  { text: 'CPC管道溢价波及', textZh: 'CPC管道溢价波及', textEn: 'CPC Pipeline Price Spillover', weight: 32, x: 100, y: -75, angle: 0, sentiment: 'negative' },
+  { text: '里海输油阻尼大', textZh: '里海输油阻尼大', textEn: 'Caspian Oil Transport Damping', weight: 30, x: -140, y: 55, angle: -30, sentiment: 'negative' },
+  { text: '1200亿风电项目投建', textZh: '1200亿风电项目投建', textEn: '120B KZT Wind Project', weight: 28, x: -60, y: -100, angle: 0, sentiment: 'positive' },
+  { text: '瞒报油品漏油扣罚', textZh: '瞒报油品漏油扣罚', textEn: 'Unreported Oil Spill Penalty', weight: 26, x: 70, y: 105, angle: 0, sentiment: 'negative' },
+  { text: '系统高频SCADA核实', textZh: '系统高频SCADA核实', textEn: 'High-Frequency SCADA Audit', weight: 24, x: -160, y: -110, angle: -30, sentiment: 'neutral' },
+  { text: '物理流量多口径一致性', textZh: '物理流量多口径一致性', textEn: 'Physical Flow Audit Integrity', weight: 22, x: 180, y: -100, angle: 0, sentiment: 'neutral' },
+  { text: '电费上涨 +35%', textZh: '电费上涨 +35%', textEn: 'Tariff Rate Increase +35%', weight: 22, x: -15, y: 80, angle: 0, sentiment: 'negative' },
+  { text: '反虚开发票欺诈', textZh: '反虚开发票欺诈', textEn: 'Anti-Billing Fraud', weight: 21, x: 130, y: -30, angle: -30, sentiment: 'neutral' },
+  { text: '低耗能绿色转型', textZh: '低耗能绿色转型', textEn: 'Low-Carbon Green Transition', weight: 20, x: 45, y: -50, angle: 0, sentiment: 'positive' },
+  { text: '哈国生态部配额卡死', textZh: '哈国生态部配额卡死', textEn: 'Ecology Ministry Quota Freeze', weight: 19, x: -80, y: 40, angle: -30, sentiment: 'negative' },
+  { text: '火炬乱燃特惩 $40/T', textZh: '火炬乱燃特惩 $40/T', textEn: 'Gas Flaring Penalty $40/T', weight: 18, x: -30, y: -150, angle: 0, sentiment: 'negative' },
+  { text: '无证生产高危主体', textZh: '无证生产高危主体', textEn: 'Unlicensed High-risk Operators', weight: 17, x: 30, y: 140, angle: -30, sentiment: 'negative' },
+  { text: '特遣派驻实勘现场', textZh: '特遣派驻实勘现场', textEn: 'Urgent Field Taskforce Envoy', weight: 16, x: -110, y: 110, angle: 0, sentiment: 'neutral' },
+  { text: '中德直驱机组到位', textZh: '中德直驱机组到位', textEn: 'CN-DE Direct Drive Turbines', weight: 15, x: 140, y: 90, angle: 0, sentiment: 'positive' },
+  { text: '里海风场并网投产', textZh: '里海风场并网投产', textEn: 'Caspian Wind On-Grid', weight: 14, x: -130, y: -10, angle: -30, sentiment: 'positive' },
+  { text: '偷盗漏电开采矿机', textZh: '偷盗漏电开采矿机', textEn: 'Power Theft Crypto Mining', weight: 13, x: 180, y: 30, angle: 0, sentiment: 'negative' },
+  { text: '智催督导告诫令速达', textZh: '智催督导告诫令速达', textEn: 'Intelligent Advisory Dispatch', weight: 12, x: 30, y: -120, angle: -30, sentiment: 'neutral' },
 ];
 
 export const PLATFORM_MONITORING: SocialPlatformPoint[] = [
@@ -167,17 +178,66 @@ export const AUDIENCE_FLOW_LINKS: FlowLink[] = [
   { source: '西里海瞒产脱网起诉舆情', target: '反关联交易及洗钱偷税稽查', value: 22020, color: '#E89518' },
 ];
 
-export const SPREAD_PATHWAYS: FlowLink[] = [
+export const SPREAD_PATHWAYS: PathwayItem[] = [
   // Propagation Path mapping
-  { source: '阿拉木图生活用电超标贴点', target: 'Telegram大V二次解调引用', value: 65, color: '#D8454C' },
-  { source: 'Telegram大V二次解调引用', target: '地方新闻网商业快讯面覆盖', value: 50, color: '#D8454C' },
-  { source: '地方新闻网商业快讯面覆盖', target: '跨国媒体地缘地平线转载', value: 35, color: '#D8454C' },
+  { 
+    sourceZh: '阿拉木图生活用电超标贴点', 
+    sourceEn: 'Almaty Tariffs Complaints', 
+    targetZh: 'Telegram大V二次解调引用', 
+    targetEn: 'Telegram Influencer Re-Quotes', 
+    value: 65, 
+    color: '#D8454C' 
+  },
+  { 
+    sourceZh: 'Telegram大V二次解调引用', 
+    sourceEn: 'Telegram Influencer Re-Quotes', 
+    targetZh: '地方新闻网商业快讯面覆盖', 
+    targetEn: 'Local News Coverage', 
+    value: 50, 
+    color: '#D8454C' 
+  },
+  { 
+    sourceZh: '地方新闻网商业快讯面覆盖', 
+    sourceEn: 'Local News Coverage', 
+    targetZh: '跨国媒体地缘地平线转载', 
+    targetEn: 'Transnational Media Echoes', 
+    value: 35, 
+    color: '#D8454C' 
+  },
 
-  { source: '阿特劳泵站遇武装袭扰', target: 'X快讯及路透现场微宏遥测配对', value: 85, color: '#D8454C' },
-  { source: 'X快讯及路透现场微宏遥测配对', target: '全球石油即期期货溢价波动舆论', value: 72, color: '#E89518' },
+  { 
+    sourceZh: '阿特劳泵站遇武装袭扰', 
+    sourceEn: 'Atyrau Pump Incident Outery', 
+    targetZh: 'X快讯及路透现场微宏遥测配对', 
+    targetEn: 'X Alerts & Reuters Telemetry Match', 
+    value: 85, 
+    color: '#D8454C' 
+  },
+  { 
+    sourceZh: 'X快讯及路透现场微宏遥测配对', 
+    sourceEn: 'X Alerts & Reuters Telemetry Match', 
+    targetZh: '全球石油即期期货溢价波动舆论', 
+    targetEn: 'Oil Futures Premium Speculation', 
+    value: 72, 
+    color: '#E89518' 
+  },
 
-  { source: '1200亿风能启动舆论', target: '萨马鲁克本地绿色宣推', value: 45, color: '#2FA862' },
-  { source: '萨马鲁克本地绿色宣推', target: 'ESG绿色社会信托增值流入', value: 38, color: '#2FA862' }
+  { 
+    sourceZh: '1200亿风能启动舆论', 
+    sourceEn: '120B KZT Wind Project Launch', 
+    targetZh: '萨马鲁克本地绿色宣推', 
+    targetEn: 'Samruk-Kazyna Green Buzz', 
+    value: 45, 
+    color: '#2FA862' 
+  },
+  { 
+    sourceZh: '萨马鲁克本地绿色宣推', 
+    sourceEn: 'Samruk-Kazyna Green Buzz', 
+    targetZh: 'ESG绿色社会信托增值流入', 
+    targetEn: 'ESG Green Inflows Surge', 
+    value: 38, 
+    color: '#2FA862' 
+  }
 ];
 
 export const keywordCloud = WORD_CLOUD_LABELS;

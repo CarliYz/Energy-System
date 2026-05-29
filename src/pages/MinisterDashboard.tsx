@@ -93,7 +93,11 @@ export default function MinisterDashboard() {
         {/* Right Action buttons with ZH toggle */}
         <div className="flex items-center gap-2 w-[320px] justify-end">
           <GhostButton onClick={() => setLanguage(language === 'zh' ? 'en' : 'zh')}>
-            ZH ⇆ EN ({language === 'zh' ? '中文' : 'ENG'})
+            <span className="flex items-center gap-1 leading-none">
+              <span className={language === 'en' ? 'text-[#2D6CDF] font-black' : 'text-slate-400 font-bold'}>EN</span>
+              <span className="text-slate-300">/</span>
+              <span className={language === 'zh' ? 'text-[#2D6CDF] font-black' : 'text-slate-400 font-bold'}>中文</span>
+            </span>
           </GhostButton>
           <GhostButton onClick={() => alert(tLabel('PDF briefing compiled and synced to Minister Office secure tablet.', '高密呈报主文PDF已离线同步发送至部长机密平板电脑。'))}>
             {tLabel('Brief PDF', 'PDF呈书')}

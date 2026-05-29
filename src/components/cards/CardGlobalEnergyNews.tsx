@@ -129,24 +129,40 @@ export default function CardGlobalEnergyNews() {
               <div
                 key={item.id}
                 onClick={() => setSelectedId(item.id)}
-                className={`p-2.5 rounded-[3px] border transition-all cursor-pointer flex flex-col gap-1.5 justify-between h-[80px] shrink-0 ${
+                className={`p-2 rounded-[3px] border transition-all cursor-pointer flex gap-1.5 justify-between h-[82px] shrink-0 ${
                   isSelected 
                     ? 'border-[#2D6CDF] bg-blue-50/15 font-bold shadow-xs' 
                     : 'border-slate-100 bg-[#FAFBFD]/60 hover:bg-slate-50/50 hover:border-slate-205'
                 }`}
               >
-                <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 select-none">
-                  <span className="font-extrabold text-slate-850">{language === 'zh' ? item.sourceZh : item.source}</span>
-                  <span>{language === 'zh' ? item.timeAgoZh : item.timeAgo}</span>
+                {/* Left: Text fields */}
+                <div className="flex-1 flex flex-col justify-between min-w-0">
+                  <div className="flex items-center justify-between text-[7.5px] font-mono text-slate-400 select-none">
+                    <span className="font-extrabold text-slate-850 truncate max-w-[55px]">
+                      {language === 'zh' ? item.sourceZh : item.source}
+                    </span>
+                    <span>{language === 'zh' ? item.timeAgoZh : item.timeAgo}</span>
+                  </div>
+                  <h4 className="font-bold text-slate-800 leading-tight tracking-tight line-clamp-2 select-text text-[10px] mt-0.5">
+                    {language === 'zh' ? item.titleZh : item.title}
+                  </h4>
+                  <div className="flex items-center justify-between mt-auto select-none leading-none pt-0.5">
+                    <span className="text-[7px] text-slate-400 font-mono">CODE: {item.id}</span>
+                    <span className="text-[7px] font-mono font-black scale-90 px-1 py-0.2 rounded" style={{ backgroundColor: `${color}10`, color: color }}>
+                      {language === 'zh' ? (item.severity === 'critical' ? '严重' : item.severity === 'medium' ? '中度' : '轻度') : item.severityLabel}
+                    </span>
+                  </div>
                 </div>
-                <h4 className="font-bold text-slate-800 leading-tight tracking-tight line-clamp-2 select-text text-[10.5px]">
-                  {language === 'zh' ? item.titleZh : item.title}
-                </h4>
-                <div className="flex items-center justify-between mt-auto select-none leading-none pt-0.5">
-                  <span className="text-[7.5px] text-slate-400 font-mono">CODE: {item.id}</span>
-                  <span className="text-[7.5px] font-mono font-black scale-90 px-1 py-0.2 rounded" style={{ backgroundColor: `${color}10`, color: color }}>
-                    {language === 'zh' ? (item.severity === 'critical' ? '严重' : item.severity === 'medium' ? '中度' : '轻度') : item.severityLabel}
-                  </span>
+
+                {/* Right: small square image thumbnail */}
+                <div className="w-[50px] h-[50px] rounded border border-slate-200/60 overflow-hidden shrink-0 self-center relative bg-slate-50">
+                  <img 
+                    src={item.image} 
+                    alt="News" 
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-0 right-0 left-0 h-[1.5px] bg-gradient-to-r from-[#D8454C] via-[#E89518] to-[#2FA862] opacity-80" />
                 </div>
               </div>
             );

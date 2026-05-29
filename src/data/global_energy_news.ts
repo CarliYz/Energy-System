@@ -84,7 +84,7 @@ export const GLOBAL_ENERGY_NEWS: GlobalNewsItem[] = [
     fullTextZh: '哈国油气开发集团 (KMG) 勘探钻机在阿特劳主力沉积岩盆地外侧顺利完成了深井盐下油气资源多点物探评价。岩芯抽样结果证实储层含有大量低粘度、低硫轻质甜原油，长线可采地质储量及采收率较之前官方审定基准超出 15%，且无需额外负担酸性剧毒硫化氢二次脱硫设备折旧成本。',
     image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&auto=format&fit=crop',
     kpiImpact: [
-      { kpi: 'Caspian Proven Reserves Index', kpiZh: '里海本属盆地探明油藏储备修正', kpiZh: '里海本属盆地探明油藏储备修正', deltaPct: 4.5 },
+      { kpi: 'Caspian Proven Reserves Index', kpiZh: '里海本属盆地探明油藏储备修正', deltaPct: 4.5 },
       { kpi: 'National Oil Export Potential', kpiZh: '国家长期原油外运商贸上限空间', deltaPct: 1.8 }
     ]
   },

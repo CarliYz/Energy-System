@@ -134,8 +134,21 @@ const translateRiskLevel = (risk: string, isZh: boolean) => {
 
 const translateSlaRemaining = (sla: string, isZh: boolean) => {
   if (isZh) return sla;
-  if (sla === '已完成') return 'Completed';
-  return sla;
+  const mappings: Record<string, string> = {
+    '已完成': 'Completed',
+    '施工进行中': 'Construction In Progress',
+    '谈判进行中': 'Negotiation In Progress',
+    '谈判与外勤核对中': 'Negotiation & Field Verification',
+    '已付款': 'Paid',
+    '草审中': 'Draft Under Review',
+    '待派发': 'Pending Dispatch',
+    '流转中': 'Routing',
+    '暂缓待验': 'Halted Pending Inspection',
+  };
+  if (sla && sla.includes('已超 SLA')) {
+    return sla.replace('已超 SLA', 'Exceeded SLA');
+  }
+  return mappings[sla] || sla;
 };
 
 const translateEntityName = (name: string, isZh: boolean) => {

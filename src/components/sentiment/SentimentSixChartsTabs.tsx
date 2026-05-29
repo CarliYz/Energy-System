@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import ReactECharts from 'echarts-for-react';
+import 'echarts-wordcloud';
 import { useLanguage } from '../LanguageContext';
 import {
   SENTIMENT_VOLUME_30D,
@@ -21,6 +23,20 @@ import { motion, AnimatePresence } from 'motion/react';
 
 type TabId = 'volume' | 'polarity' | 'wordcloud' | 'audience' | 'platform' | 'pathway';
 
+function WorkspaceSubCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-[5px] flex flex-col h-[300px] shadow-2xs hover:shadow-xs transition-shadow overflow-hidden">
+      <div className="bg-[#FAFBFD] border-b border-slate-100 px-3 py-2 flex items-center gap-1.5 shrink-0 select-none">
+        <span className="text-[#2D6CDF] flex items-center">{icon}</span>
+        <span className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">{title}</span>
+      </div>
+      <div className="flex-1 p-3 overflow-hidden min-h-0 bg-white">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function SentimentSixChartsTabs() {
   const { language } = useLanguage();
   const t = (arg1: string, arg2?: string) => {
@@ -35,8 +51,6 @@ export function SentimentSixChartsTabs() {
     return language === 'zh' ? arg2 : arg1;
   };
 
-  const [activeTab, setActiveTab] = useState<TabId>('volume');
-
   // Shared KPI Summary calculations
   const totalVolume24H = 20124;
   const negPct = 68.4;
@@ -44,16 +58,16 @@ export function SentimentSixChartsTabs() {
   const neuPct = 19.4;
 
   const tabList: { id: TabId; labelEn: string; labelCn: string; icon: React.ReactNode }[] = [
-    { id: 'volume', labelEn: 'Volume 30d', labelCn: '30日热度时序', icon: <BarChart3 size={12} /> },
-    { id: 'polarity', labelEn: 'Aspect Polarity', labelCn: '情感分布', icon: <PieChart size={12} /> },
-    { id: 'wordcloud', labelEn: 'Word Cloud', labelCn: '词云螺旋', icon: <Compass size={12} /> },
-    { id: 'audience', labelEn: 'Audience Flow', labelCn: '流量解构', icon: <MessageSquare size={12} /> },
-    { id: 'platform', labelEn: 'Platform Sparklines', labelCn: '全平台监测', icon: <MessagesSquare size={12} /> },
-    { id: 'pathway', labelEn: 'Spread Pathway', labelCn: '层级传播链', icon: <Flame size={12} /> },
+    { id: 'volume', labelEn: 'Volume 30d', labelCn: '30日热度时序', icon: <BarChart3 size={11} /> },
+    { id: 'polarity', labelEn: 'Aspect Polarity', labelCn: '情感分布', icon: <PieChart size={11} /> },
+    { id: 'wordcloud', labelEn: 'Word Cloud', labelCn: '词云螺旋', icon: <Compass size={11} /> },
+    { id: 'audience', labelEn: 'Audience Flow', labelCn: '流量解构', icon: <MessageSquare size={11} /> },
+    { id: 'platform', labelEn: 'Platform Sparklines', labelCn: '全平台监测', icon: <MessagesSquare size={11} /> },
+    { id: 'pathway', labelEn: 'Spread Pathway', labelCn: '层级传播链', icon: <Flame size={11} /> },
   ];
 
   return (
-    <div className="flex flex-col h-full justify-between overflow-hidden text-[11px] select-none font-sans bg-white rounded">
+    <div className="flex flex-col text-[11px] font-sans bg-white rounded gap-4">
       
       {/* 1. Shared top KPI bar */}
       <div className="bg-slate-50 border border-slate-100 rounded p-2.5 flex items-center justify-between gap-4 select-text">
@@ -102,44 +116,33 @@ export function SentimentSixChartsTabs() {
         </div>
       </div>
 
-      {/* 2. Scrollable tab navigation bar */}
-      <div className="flex items-center gap-1 border-b border-slate-100 py-1.5 overflow-x-auto select-none no-scrollbar shrink-0">
-        {tabList.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-2.5 py-1 rounded-[2px] font-bold flex items-center gap-1 border text-[9.5px] transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-[#0F1722] text-white border-[#0F1722]'
-                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {tab.icon}
-            <span>{language === 'zh' ? tab.labelCn : tab.labelEn}</span>
-          </button>
-        ))}
+      {/* 2. Flat interactive grid of 6 cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <WorkspaceSubCard title={t('Volume 30d', '30日热度时序')} icon={<BarChart3 size={13} />}>
+          <TabVolume30d t={t} />
+        </WorkspaceSubCard>
+
+        <WorkspaceSubCard title={t('Aspect Polarity', '情感分布')} icon={<PieChart size={13} />}>
+          <TabPolarityAspects t={t} language={language} />
+        </WorkspaceSubCard>
+
+        <WorkspaceSubCard title={t('Word Cloud', '词云螺旋')} icon={<Compass size={13} />}>
+          <TabWordCloud t={t} />
+        </WorkspaceSubCard>
+
+        <WorkspaceSubCard title={t('Audience Flow', '流量解构')} icon={<MessageSquare size={13} />}>
+          <TabAudienceFlow t={t} />
+        </WorkspaceSubCard>
+
+        <WorkspaceSubCard title={t('Platform Sparklines', '全平台监测')} icon={<MessagesSquare size={13} />}>
+          <TabPlatformMonitor t={t} />
+        </WorkspaceSubCard>
+
+        <WorkspaceSubCard title={t('Spread Pathway', '层级传播链')} icon={<Flame size={13} />}>
+          <TabSpreadPathway t={t} />
+        </WorkspaceSubCard>
       </div>
 
-      {/* 3. Tab content viewport (strict fixed sizes) */}
-      <div className="flex-1 relative overflow-hidden mt-2.5 min-h-0 bg-[#FAFBFD]/30 border border-slate-100 rounded-[2px] p-2.5">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 3 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -3 }}
-            transition={{ duration: 0.15 }}
-            className="w-full h-full"
-          >
-            {activeTab === 'volume' && <TabVolume30d t={t} />}
-            {activeTab === 'polarity' && <TabPolarityAspects t={t} language={language} />}
-            {activeTab === 'wordcloud' && <TabWordCloud t={t} />}
-            {activeTab === 'audience' && <TabAudienceFlow t={t} />}
-            {activeTab === 'platform' && <TabPlatformMonitor t={t} />}
-            {activeTab === 'pathway' && <TabSpreadPathway t={t} />}
-          </motion.div>
-        </AnimatePresence>
-      </div>
     </div>
   );
 }
@@ -352,53 +355,73 @@ export function TabPolarityAspects({ t, language }: { t: (en: string, zh: string
 // TAB 3: WORD CLOUD WITH DETAILED DETECTED COORDINATES SPIRAL
 // ============================================================================
 export function TabWordCloud({ t }: { t: (en: string, zh: string) => string }) {
+  const { language } = useLanguage();
   const words = WORD_CLOUD_LABELS;
+
+  const chartOption = {
+    tooltip: {
+      show: true,
+      formatter: '{b}: {c}'
+    },
+    series: [{
+      type: 'wordCloud',
+      shape: 'circle',
+      left: 'center',
+      top: 'center',
+      width: '100%',
+      height: '100%',
+      right: null,
+      bottom: null,
+      sizeRange: [12, 28],
+      rotationRange: [-45, 90],
+      rotationStep: 45,
+      gridSize: 6,
+      drawOutOfBound: false,
+      layoutAnimation: true,
+      textStyle: {
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 'bold',
+      },
+      emphasis: {
+        focus: 'self',
+        textStyle: {
+          shadowBlur: 10,
+          shadowColor: '#333'
+        }
+      },
+      data: words.map(w => ({
+        name: language === 'zh' ? w.textZh : w.textEn,
+        value: w.weight,
+        textStyle: {
+          color: w.sentiment === 'positive' ? '#10B981' : (w.sentiment === 'negative' ? '#EF4444' : '#94A3B8')
+        }
+      }))
+    }]
+  };
+
+  const onChartClick = (params: any) => {
+    if (params && params.name) {
+      const displayText = params.name;
+      alert(language === 'zh' ? `已加入微观级高频溯源侦测指令：锁定关键字 "${displayText}"` : `High-frequency micro-trace investigation queued for keyword: "${displayText}"`);
+    }
+  };
+
+  const onEvents = {
+    click: onChartClick
+  };
 
   return (
     <div className="w-full h-full flex flex-col justify-between">
-      <div className="text-[9px] font-mono text-slate-400 mb-1">
-        {t('⚛ Spatially projected multi-frequency lexical spiral map', '⚛ 词频与偏流极性二维空间坐标螺旋聚合 (点击触发特侦检索)')}
+      <div className="text-[9px] font-mono text-slate-400 mb-1.5">
+        {t('⚛ Lexical frequency tag cloud mapped by sentiment polarity (Click details)', '⚛ 全维度舆情分词云图 · 依情感极性及热度权重分布 (点击高频词触发深度检索)')}
       </div>
 
-      <div className="flex-1 bg-[#1A1F26] border border-slate-900 rounded p-2 relative flex items-center justify-center overflow-hidden min-h-[160px]">
-        {/* Dynamic coordinate arrangement simulating gravity without heavy runtime cloud engine */}
-        <div className="relative w-full h-full max-w-[420px] max-h-[150px] select-text">
-          {words.map((w, idx) => {
-            const absoluteLeft = 50 + (w.x / 420) * 100;
-            const absoluteTop = 50 + (w.y / 150) * 100;
-            
-            // Text Color based on polarity
-            const colorClass =
-              w.sentiment === 'positive' ? 'text-emerald-400 hover:text-emerald-300' :
-              w.sentiment === 'negative' ? 'text-rose-450 hover:text-rose-350 font-black' : 'text-slate-400 hover:text-slate-200';
-
-            // Font Sizes mapped to weights
-            const fontSize = 7 + (w.weight / 48) * 13;
-
-            return (
-              <span
-                key={idx}
-                className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:scale-110 font-bold ${colorClass}`}
-                style={{
-                  left: `${absoluteLeft}%`,
-                  top: `${absoluteTop}%`,
-                  fontSize: `${fontSize}px`,
-                  transform: `translate(-50%, -50%) rotate(${w.angle}deg)`,
-                  textShadow: '0 1px 4px rgba(0,0,0,0.45)',
-                  whiteSpace: 'nowrap'
-                }}
-                onClick={() => alert(`触发针对"${w.text}"的自动化微观高频溯源侦巡？`)}
-              >
-                {w.text}
-              </span>
-            );
-          })}
-        </div>
-
-        {/* Dynamic spiral decor rings */}
-        <div className="absolute inset-0 pointer-events-none border border-slate-800/25 rounded-full scale-[0.3]" />
-        <div className="absolute inset-0 pointer-events-none border border-slate-800/15 rounded-full scale-[0.6]" />
-        <div className="absolute inset-0 pointer-events-none border border-slate-850/10 rounded-full scale-[0.85]" />
+      <div className="flex-1 bg-slate-950 border border-slate-850 rounded overflow-hidden min-h-[160px] relative select-none">
+        <ReactECharts
+          option={chartOption}
+          style={{ height: '100%', width: '100%' }}
+          onEvents={onEvents}
+        />
       </div>
     </div>
   );
@@ -408,23 +431,24 @@ export function TabWordCloud({ t }: { t: (en: string, zh: string) => string }) {
 // TAB 4: AUDIENCE FLOW - Custom Bezier SVG mini-Sankey diagram
 // ============================================================================
 export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }) {
-  // Let's layout standard Flow Nodes. Left column has 3 sources, Middle has 3 concern aspects, Right has 3 core policies
+  const { language } = useLanguage();
+
   const sources = [
-    { id: 'S1', label: 'Telegram Groups', y: 25, val: 62450 },
-    { id: 'S2', label: 'VKontakte (VK)', y: 75, val: 38120 },
-    { id: 'S3', label: 'X (Twitter)', y: 125, val: 15800 }
+    { id: 'S1', label: 'Telegram Groups', labelZh: 'Telegram社群', y: 25, val: 62450 },
+    { id: 'S2', label: 'VKontakte (VK)', labelZh: 'VKontakte平台', y: 75, val: 38120 },
+    { id: 'S3', label: 'X (Twitter)', labelZh: 'X社交网络', y: 125, val: 15800 }
   ];
 
   const middle = [
-    { id: 'M1', label: '电费上涨 +35%', y: 20, val: 54500 },
-    { id: 'M2', label: '网关跳闸断能', y: 75, val: 40220 },
-    { id: 'M3', label: '其他/伴生火炬', y: 130, val: 11700 }
+    { id: 'M1', label: 'Tariffs Up +35%', labelZh: '电费上涨 +35%', y: 20, val: 54500 },
+    { id: 'M2', label: 'Grid Outages', labelZh: '网关跳闸断能', y: 75, val: 40220 },
+    { id: 'M3', label: 'Other/Gas flaring', labelZh: '其他/伴生火炬', y: 130, val: 11700 }
   ];
 
   const target = [
-    { id: 'T1', label: '民生负荷红线保障', y: 25, val: 54500 },
-    { id: 'T2', label: '物理网络防务安全', y: 75, val: 34000 },
-    { id: 'T3', label: '低碳与关联稽查员', y: 125, val: 27870 }
+    { id: 'T1', label: 'Livelihood Shield', labelZh: '民生负荷红线保障', y: 25, val: 54500 },
+    { id: 'T2', label: 'Physical Security Ops', labelZh: '物理网络防务安全', y: 75, val: 34000 },
+    { id: 'T3', label: 'Compliance Audits', labelZh: '低碳与关联稽查员', y: 125, val: 27870 }
   ];
 
   // Map Bezier link paths
@@ -453,12 +477,12 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
       </div>
 
       <div className="flex-1 bg-white border border-slate-100 rounded relative overflow-hidden p-1.5 min-h-[160px]">
-        <svg viewBox="0 0 500 150" className="w-full h-full text-[8px] font-black select-none">
+        <svg viewBox="0 0 500 150" className="w-full h-full text-[8.5px] font-bold select-none">
           {/* Bezier Links: Left to Middle */}
           {linksLeft.map((link, idx) => {
             const x1 = 110;
             const y1 = link.sY;
-            const x2 = 240;
+            const x2 = 230;
             const y2 = link.tY;
             const cx1 = x1 + 50;
             const cy1 = y1;
@@ -483,7 +507,7 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
           {linksRight.map((link, idx) => {
             const x1 = 330;
             const y1 = link.sY;
-            const x2 = 400;
+            const x2 = 395;
             const y2 = link.tY;
             const cx1 = x1 + 35;
             const cy1 = y1;
@@ -508,7 +532,9 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
           {sources.map(src => (
             <g key={src.id}>
               <rect x="10" y={src.y - 10} width="100" height="20" rx="1.5" fill="#1E293B" />
-              <text x="15" y={src.y + 3} fill="#FFF" fontWeight="700">{src.label}</text>
+              <text x="15" y={src.y + 3} fill="#FFF" fontWeight="700" className="text-[7.5px]" fontSize="7.5">
+                {language === 'zh' ? src.labelZh : src.label}
+              </text>
               <circle cx="110" cy={src.y} r="3.5" fill="#38BDF8" />
             </g>
           ))}
@@ -516,9 +542,11 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
           {/* Nodes: Column 2 (Middle Concern Topics) */}
           {middle.map(mid => (
             <g key={mid.id}>
-              <rect x="240" y={mid.y - 10} width="90" height="20" rx="1.5" fill="#475569" />
-              <text x="245" y={mid.y + 3} fill="#FFF" fontWeight="700">{mid.label}</text>
-              <circle cx="240" cy={mid.y} r="3.5" fill="#F59E0B" />
+              <rect x="230" y={mid.y - 10} width="100" height="20" rx="1.5" fill="#475569" />
+              <text x="235" y={mid.y + 3} fill="#FFF" fontWeight="700" className="text-[7.5px]" fontSize="7.5">
+                {language === 'zh' ? mid.labelZh : mid.label}
+              </text>
+              <circle cx="230" cy={mid.y} r="3.5" fill="#F59E0B" />
               <circle cx="330" cy={mid.y} r="3.5" fill="#10B981" />
             </g>
           ))}
@@ -526,9 +554,11 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
           {/* Nodes: Column 3 (Right Key Policies) */}
           {target.map(tar => (
             <g key={tar.id}>
-              <rect x="400" y={tar.y - 10} width="90" height="20" rx="1.5" fill="#0F1722" />
-              <text x="405" y={tar.y + 3} fill="#FFF" fontWeight="700">{tar.label}</text>
-              <circle cx="400" cy={tar.y} r="3.5" fill="#14B8A6" />
+              <rect x="395" y={tar.y - 10} width="100" height="20" rx="1.5" fill="#0F1722" />
+              <text x="400" y={tar.y + 3} fill="#FFF" fontWeight="700" className="text-[7.5px]" fontSize="7.5">
+                {language === 'zh' ? tar.labelZh : tar.label}
+              </text>
+              <circle cx="395" cy={tar.y} r="3.5" fill="#14B8A6" />
             </g>
           ))}
         </svg>
@@ -541,8 +571,22 @@ export function TabAudienceFlow({ t }: { t: (en: string, zh: string) => string }
 // TAB 5: PLATFORM MONITOR SPARKLINE AND ACCORDION DETAIL COMMENTS
 // ============================================================================
 export function TabPlatformMonitor({ t }: { t: (en: string, zh: string) => string }) {
+  const { language } = useLanguage();
   const platforms = PLATFORM_MONITORING;
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const translatePostText = (text: string, isZh: boolean) => {
+    if (isZh) return text;
+    const mappings: Record<string, string> = {
+      '阿拉木图民用生活电费本月怎么直接多出来+35%？连个征求意见会都没有？！': 'Why did Almaty residential utility fees jump +35% this month? There was not even any public hearing?!',
+      '听说阿特劳4号泵站遇袭后很多重质重组管道开始间歇性减震降温，会不会引发全省网架解节？': 'Heard that after Atyrau pump station #4 was attacked, several heavy crude pipelines started intermittent cooling. Will this trigger a grid-wide failure?',
+      '母公司KMG突然说要在厂里部署激光探嗅仪器，严查哪怕0.5吨的排气，我们作业量直接翻倍！': 'Parent company KMG deployed laser sniffing devices to inspect even 0.5T emissions. Our workload has doubled!',
+      '西里海LLC被挂了环保红牌，他们以前虚开那么多纳税和排放 disclosures 看来是掩耳盗铃。': 'Western Caspian LLC got a compliance red card. Their past tax & emission disclosures were complete lies.',
+      '国家重金规划的1200亿风场一期已打桩就位！期待摆脱纯化石调峰！': 'The national 120 billion wind farm phase 1 is finally ready! Looking forward to independent clean energy grid!',
+      '地方大工业大用热核定的发贴与网频调节仍存温温公差，不至于导致严重断电脱落。': 'Industrial heat allocations and grid frequency regulation remain within safe tolerances; no major blackout risk.'
+    };
+    return mappings[text] || text;
+  };
 
   return (
     <div className="w-full h-full flex flex-col justify-between space-y-1.5">
@@ -620,7 +664,7 @@ export function TabPlatformMonitor({ t }: { t: (en: string, zh: string) => strin
                             <span className="text-blue-600">@{post.user}</span>
                             <span className="text-slate-600">CRIT_WT: {post.weight}</span>
                           </div>
-                          <p className="text-slate-700 leading-normal font-semibold font-sans">{post.text}</p>
+                          <p className="text-slate-700 leading-normal font-semibold font-sans">{translatePostText(post.text, language === 'zh')}</p>
                         </div>
                       ))}
                     </div>
@@ -639,6 +683,7 @@ export function TabPlatformMonitor({ t }: { t: (en: string, zh: string) => strin
 // TAB 6: SPREAD PATHWAYS - Cascade propagation step sequence flow overlay
 // ============================================================================
 export function TabSpreadPathway({ t }: { t: (en: string, zh: string) => string }) {
+  const { language } = useLanguage();
   const pathItems = SPREAD_PATHWAYS;
 
   return (
@@ -649,29 +694,40 @@ export function TabSpreadPathway({ t }: { t: (en: string, zh: string) => string 
       </div>
 
       <div className="flex-1 bg-white border border-slate-100 rounded p-3 overflow-y-auto max-h-[160px] pr-1 space-y-2.5 shadow-2xs select-text">
-        {pathItems.map((path, idx) => (
-          <div key={idx} className="flex items-center gap-2 text-[10px] bg-slate-50 p-2 rounded border border-slate-100">
-            {/* Step Block 1 */}
-            <div className="bg-slate-700 text-white rounded px-2 py-1 w-28 shrink-0 font-extrabold truncate text-[9.5px]">
-              {path.source}
-            </div>
+        {pathItems.map((path, idx) => {
+          const sourceText = language === 'zh' ? path.sourceZh : path.sourceEn;
+          const targetText = language === 'zh' ? path.targetZh : path.targetEn;
 
-            {/* Bezier linking line segment with micro percentage tag */}
-            <div className="flex-1 flex flex-col items-center justify-center relative min-w-[50px] select-none">
-              <span className="text-[8.5px] font-mono font-black text-rose-500 bg-red-50 px-1 rounded-full border border-red-100 animate-pulse">
-                {path.value}%
-              </span>
-              <div className="w-full h-0.5 bg-slate-200 mt-1 relative">
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-400 transform rotate-45" />
+          return (
+            <div key={idx} className="flex items-center gap-2 text-[10px] bg-slate-50 p-2 rounded border border-slate-100">
+              {/* Step Block 1 */}
+              <div 
+                className="bg-slate-700 text-white rounded px-2 py-1 w-28 shrink-0 font-extrabold truncate text-[9px]" 
+                title={sourceText}
+              >
+                {sourceText}
+              </div>
+
+              {/* Bezier linking line segment with micro percentage tag */}
+              <div className="flex-1 flex flex-col items-center justify-center relative min-w-[30px] select-none">
+                <span className="text-[8.5px] font-mono font-black text-rose-500 bg-red-50 px-1 rounded-full border border-red-100 animate-pulse">
+                  {path.value}%
+                </span>
+                <div className="w-full h-0.5 bg-slate-200 mt-1 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-400 transform rotate-45" />
+                </div>
+              </div>
+
+              {/* Step Block 2 */}
+              <div 
+                className="bg-slate-850 text-white rounded px-2 py-1 w-32 shrink-0 font-extrabold text-right truncate text-[9px]" 
+                title={targetText}
+              >
+                {targetText}
               </div>
             </div>
-
-            {/* Step Block 2 */}
-            <div className="bg-slate-850 text-white rounded px-2 py-1 w-32 shrink-0 font-extrabold text-right truncate text-[9.5px]">
-              {path.target}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

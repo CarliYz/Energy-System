@@ -9,8 +9,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
 import { cn } from '@/src/lib/utils';
-import { ScadaImage } from '../components/ScadaImage';
-
+import ScadaImage from '../components/ScadaImage';
 
 // custom CSS for dashed border pulse and pseudo 3D rotations
 const styles = `
@@ -40,74 +39,6 @@ const styles = `
   scrollbar-width: none;
 }
 `;
-
-interface ScadaImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  localPath: string;
-}
-
-const getInitialScadaSrc = (localPath: string) => {
-  const configuredBase = typeof window !== 'undefined' ? localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE') : null;
-  const primaryBase = configuredBase || 'https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public';
-  const cleanPath = localPath.startsWith('/') ? localPath : '/' + localPath;
-  return `${primaryBase.endsWith('/') ? primaryBase.slice(0, -1) : primaryBase}${cleanPath}`;
-};
-
-const ScadaImage: React.FC<ScadaImageProps> = ({ localPath, className, style, alt, ...props }) => {
-  const [src, setSrc] = useState<string | null>(() => getInitialScadaSrc(localPath));
-  const [triedSources, setTriedSources] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-
-  useEffect(() => {
-    const configuredBase = localStorage.getItem('STATECRAFT_SCADA_ASSET_BASE');
-    const primaryBase = configuredBase || 'https://raw.githubusercontent.com/karlee01/ai-statecraft/main/public';
-    const cleanPath = localPath.startsWith('/') ? localPath : '/' + localPath;
-
-    const sourcesToTry: string[] = [];
-    
-    // 1st: Primary base + path
-    sourcesToTry.push(`${primaryBase.endsWith('/') ? primaryBase.slice(0, -1) : primaryBase}${cleanPath}`);
-    
-    // 2nd: Uppercase variant if different
-    const upperBase = 'https://raw.githubusercontent.com/karlee01/AI-STATECRAFT/main/public';
-    if (primaryBase !== upperBase) {
-      sourcesToTry.push(`${upperBase}${cleanPath}`);
-    }
-    
-    // 3rd: Local public path
-    sourcesToTry.push(cleanPath);
-
-    setTriedSources(sourcesToTry);
-    setSrc(sourcesToTry[0]);
-    setCurrentIndex(0);
-  }, [localPath]);
-
-  const handleError = () => {
-    if (currentIndex + 1 < triedSources.length) {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
-      setSrc(triedSources[nextIndex]);
-    } else {
-      // Final fallback to high-tech SVG line art placeholder
-      setSrc(`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="100%" height="100%" fill="%231E293B"/><circle cx="200" cy="130" r="40" stroke="%2338BDF8" stroke-width="2" fill="none" stroke-dasharray="5,5"/><path d="M150 210 L250 210 M170 230 L230 230" stroke="%2338BDF8" stroke-width="2"/><text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" fill="%2394A3B8" font-family="monospace" font-size="11">PORT SCAN ACTIVE • OFFLINE BACKUP</text></svg>`);
-    }
-  };
-
-  if (!src) {
-    return null;
-  }
-
-  return (
-    <img
-      src={src}
-      onError={handleError}
-      className={className}
-      style={style}
-      alt={alt}
-      referrerPolicy="no-referrer"
-      {...props}
-    />
-  );
-};
 
 // Types
 type Level = 'L1' | 'L2' | 'L3';

@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
 import { cn } from '@/src/lib/utils';
+import { ScadaImage } from '../components/ScadaImage';
+
 
 // custom CSS for dashed border pulse and pseudo 3D rotations
 const styles = `
